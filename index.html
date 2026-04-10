@@ -33,6 +33,7 @@
       overflow-x: hidden;
     }
 
+    /* rune canvas */
     #rune-canvas {
       position: fixed;
       inset: 0;
@@ -42,6 +43,28 @@
       z-index: 0;
     }
 
+    /* bottom fog glow */
+    .bottom-glow {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 280px;
+      background: radial-gradient(ellipse 90% 100% at 50% 100%,
+        rgba(120, 80, 180, 0.18) 0%,
+        rgba(184, 154, 106, 0.07) 45%,
+        transparent 75%);
+      pointer-events: none;
+      z-index: 0;
+      animation: glow-breathe 6s ease-in-out infinite;
+    }
+
+    @keyframes glow-breathe {
+      0%,100% { opacity: 0.7; }
+      50%      { opacity: 1;   }
+    }
+
+    /* top vignette */
     body::before {
       content: '';
       position: fixed;
@@ -52,6 +75,7 @@
       z-index: 0;
     }
 
+    /* ── header ── */
     header {
       position: relative;
       z-index: 1;
@@ -93,21 +117,34 @@
       animation: fade-up 0.8s 0.4s ease forwards;
     }
 
+    .description {
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--accent-dim);
+      margin-top: 0.6rem;
+      letter-spacing: 0.03em;
+      opacity: 0;
+      animation: fade-up 0.8s 0.52s ease forwards;
+    }
+
     .divider {
       width: 60px;
       height: 1px;
       background: linear-gradient(90deg, transparent, var(--accent-dim), transparent);
       margin: 2rem auto 0;
       opacity: 0;
-      animation: fade-up 0.8s 0.55s ease forwards;
+      animation: fade-up 0.8s 0.65s ease forwards;
     }
 
+    /* ── grid ── */
     main {
       position: relative;
       z-index: 1;
       max-width: 1100px;
       margin: 0 auto;
-      padding: 2rem 1.5rem 6rem;
+      padding: 2rem 1.5rem 8rem;
     }
 
     .grid {
@@ -116,6 +153,7 @@
       gap: 1.5rem;
     }
 
+    /* ── flip card ── */
     .flip-wrap {
       perspective: 900px;
       width: 100%;
@@ -129,7 +167,7 @@
       width: 100%;
       height: 100%;
       transform-style: preserve-3d;
-      transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
+      transition: transform 0.58s cubic-bezier(0.4, 0.2, 0.2, 1);
     }
 
     .flip-wrap:hover .flip-inner {
@@ -143,8 +181,10 @@
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
       border: 1px solid var(--border);
+      transition: box-shadow 0.4s ease;
     }
 
+    /* front */
     .front {
       background: var(--surface);
       display: flex;
@@ -152,6 +192,10 @@
       align-items: center;
       justify-content: center;
       padding: 1.25rem 0.75rem 1.5rem;
+    }
+
+    .flip-wrap:hover .front {
+      box-shadow: 0 0 18px 2px rgba(120, 80, 180, 0.15);
     }
 
     .skin {
@@ -184,6 +228,7 @@
       opacity: 0.7;
     }
 
+    /* back */
     .back {
       background: var(--surface-back);
       border-color: var(--border-glow);
@@ -193,6 +238,14 @@
       align-items: center;
       justify-content: center;
       padding: 1.25rem 1rem;
+      /* gold shimmer glow when revealed */
+      box-shadow: inset 0 0 30px rgba(184,154,106,0.06);
+    }
+
+    .flip-wrap:hover .back {
+      box-shadow:
+        inset 0 0 30px rgba(184,154,106,0.10),
+        0 0 22px 3px rgba(184,154,106,0.12);
     }
 
     .back-name {
@@ -246,6 +299,7 @@
       text-align: center;
     }
 
+    /* ── footer ── */
     footer {
       position: relative;
       z-index: 1;
@@ -257,6 +311,7 @@
       color: var(--muted);
     }
 
+    /* ── animations ── */
     @keyframes fade-up {
       from { opacity: 0; transform: translateY(14px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -266,10 +321,12 @@
 <body>
 
 <canvas id="rune-canvas" aria-hidden="true"></canvas>
+<div class="bottom-glow" aria-hidden="true"></div>
 
 <header>
   <p class="eyebrow">Survival Multiplayer</p>
   <h1>Wyrdcraft</h1>
+  <p class="description">"Your fate is drawn. What you do with it is up to you."</p>
   <p class="tagline">meet the crew</p>
   <div class="divider"></div>
 </header>
@@ -284,19 +341,20 @@
 
 <script>
 /* ─────────────────────────────
-   RUNE BACKGROUND ANIMATION
+   RUNE BACKGROUND — TRUE LOOP
+   Each rune travels from bottom to top over a fixed duration,
+   then resets instantly — guaranteeing a continuous, gapless loop.
 ───────────────────────────── */
 (function () {
   const canvas = document.getElementById('rune-canvas');
   const ctx    = canvas.getContext('2d');
 
-  // Elder Futhark + extra fantasy runes
-  const RUNES  = ['ᚠ','ᚢ','ᚦ','ᚨ','ᚱ','ᚲ','ᚷ','ᚹ','ᚺ','ᚾ',
-                  'ᛁ','ᛃ','ᛇ','ᛈ','ᛉ','ᛊ','ᛏ','ᛒ','ᛖ','ᛗ',
-                  'ᛚ','ᛜ','ᛞ','ᛟ','ᚻ','ᚼ','ᛦ','ᛥ','ᛣ','ᛤ'];
+  const RUNES = ['ᚠ','ᚢ','ᚦ','ᚨ','ᚱ','ᚲ','ᚷ','ᚹ','ᚺ','ᚾ',
+                 'ᛁ','ᛃ','ᛇ','ᛈ','ᛉ','ᛊ','ᛏ','ᛒ','ᛖ','ᛗ',
+                 'ᛚ','ᛜ','ᛞ','ᛟ','ᚻ','ᚼ','ᛦ','ᛥ','ᛣ','ᛤ'];
 
-  const GOLD   = [184, 154, 106];  // blessed
-  const PURPLE = [120,  80, 180];  // cursed
+  const GOLD   = [184, 154, 106];
+  const PURPLE = [120,  80, 180];
 
   let W, H, particles;
 
@@ -307,69 +365,80 @@
     H = canvas.height = window.innerHeight;
   }
 
-  function newParticle(startAtBottom) {
-    const cursed = Math.random() < 0.42;
-    const col    = cursed ? PURPLE : GOLD;
-    const size   = rand(12, 26);
-    const peakA  = rand(0.05, cursed ? 0.16 : 0.20);
+  function makeParticle(staggerY) {
+    const cursed  = Math.random() < 0.42;
+    const col     = cursed ? PURPLE : GOLD;
+    const size    = rand(12, 26);
+    const dur     = rand(12000, 28000);   // ms to travel full height
+    const startMs = staggerY
+      ? -(Math.random() * dur)            // stagger initial positions across full cycle
+      : 0;
     return {
-      x:       rand(0, W),
-      y:       startAtBottom ? H + size * 2 : rand(-size, H),
-      vy:      rand(0.22, 0.65),
-      vx:      rand(-0.18, 0.18),
+      x0:      rand(0, W),               // base x
+      drift:   rand(-40, 40),            // total horizontal drift over full trip
       size,
       rune:    RUNES[Math.floor(Math.random() * RUNES.length)],
       r: col[0], g: col[1], b: col[2],
-      alpha:   startAtBottom ? 0 : rand(0, peakA),
-      peakA,
-      fadeIn:  true,
+      peakA:   rand(0.05, cursed ? 0.16 : 0.21),
+      dur,
+      startMs,
+      rot0:    rand(-0.5, 0.5),
+      rotSpd:  rand(-0.0008, 0.0008),    // radians/ms
       flicker: cursed,
       ft:      rand(0, Math.PI * 2),
-      rot:     rand(-0.5, 0.5),
-      rotV:    rand(-0.004, 0.004),
     };
   }
 
   function initParticles() {
-    const count = Math.max(18, Math.floor(W * H / 22000));
-    particles = Array.from({ length: count }, () => newParticle(false));
+    const count = Math.max(20, Math.floor(W * H / 20000));
+    particles = Array.from({ length: count }, () => makeParticle(true));
   }
 
-  function tick() {
+  let lastTs = null;
+
+  function tick(ts) {
+    if (!lastTs) lastTs = ts;
+    const dt = ts - lastTs;
+    lastTs = ts;
+
     ctx.clearRect(0, 0, W, H);
 
     for (let i = 0; i < particles.length; i++) {
       const p = particles[i];
 
-      p.y   -= p.vy;
-      p.x   += p.vx;
-      p.rot += p.rotV;
-      p.ft  += 0.055;
+      p.startMs += dt;
+      p.ft      += dt * 0.0018;
 
-      if (p.flicker) {
-        // cursed: erratic flicker, dims as it rises
-        const heightFade = Math.max(0, p.y / H);
-        p.alpha = p.peakA * heightFade * (0.55 + 0.45 * Math.sin(p.ft * 1.8 + Math.sin(p.ft * 3.1)));
-      } else {
-        // blessed: smooth breathe in then fade out near top
-        if (p.fadeIn) {
-          p.alpha += 0.0025;
-          if (p.alpha >= p.peakA) p.fadeIn = false;
-        } else {
-          p.alpha -= 0.001;
-        }
-      }
-
-      // recycle when off-screen or invisible
-      if (p.y < -p.size * 3 || p.alpha < 0) {
-        particles[i] = newParticle(true);
+      // progress 0→1 over full duration, then reset
+      let prog = p.startMs / p.dur;
+      if (prog >= 1) {
+        // reset: new rune, new x, same loop structure
+        const next  = makeParticle(false);
+        next.startMs = 0;
+        particles[i] = next;
         continue;
       }
 
+      // position: bottom → top
+      const y = H + p.size - (H + p.size * 3) * prog;
+      const x = p.x0 + p.drift * prog;
+      const rot = p.rot0 + p.rotSpd * p.startMs;
+
+      // alpha: fade in first 15%, hold, fade out last 25%
+      let alpha;
+      if (p.flicker) {
+        const heightFade = 1 - prog;
+        alpha = p.peakA * heightFade * (0.5 + 0.5 * Math.sin(p.ft * 2.2 + Math.sin(p.ft * 3.5)));
+      } else {
+        const fadeIn  = Math.min(1, prog / 0.15);
+        const fadeOut = prog > 0.75 ? Math.max(0, 1 - (prog - 0.75) / 0.25) : 1;
+        alpha = p.peakA * fadeIn * fadeOut;
+      }
+
       ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.rot);
-      ctx.globalAlpha = Math.min(1, Math.max(0, p.alpha));
+      ctx.translate(x, y);
+      ctx.rotate(rot);
+      ctx.globalAlpha = Math.min(1, Math.max(0, alpha));
       ctx.fillStyle   = `rgb(${p.r},${p.g},${p.b})`;
       ctx.font        = `${p.size}px serif`;
       ctx.textAlign   = 'center';
@@ -383,7 +452,7 @@
 
   resize();
   initParticles();
-  tick();
+  requestAnimationFrame(tick);
   window.addEventListener('resize', () => { resize(); initParticles(); });
 })();
 
