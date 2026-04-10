@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wyrdcraft — The Crew</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0c0d0f;
+      --surface:   #13151a;
+      --border:    rgba(255,255,255,0.07);
+      --border-hover: rgba(255,255,255,0.18);
+      --text:      #e8e4dc;
+      --muted:     #7a7670;
+      --accent:    #b89a6a;
+      --accent-dim:#6e5b3a;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Crimson Pro', Georgia, serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── subtle parchment texture overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(184,154,106,0.08) 0%, transparent 70%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── header ── */
+    header {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 5rem 1rem 3.5rem;
+    }
+
+    .eyebrow {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.35em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      opacity: 0;
+      animation: fade-up 0.8s 0.1s ease forwards;
+    }
+
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(2.8rem, 8vw, 5.5rem);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      color: var(--text);
+      line-height: 1;
+      opacity: 0;
+      animation: fade-up 0.8s 0.25s ease forwards;
+    }
+
+    .tagline {
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      font-size: 1.15rem;
+      font-weight: 300;
+      color: var(--muted);
+      margin-top: 1rem;
+      opacity: 0;
+      animation: fade-up 0.8s 0.4s ease forwards;
+    }
+
+    .divider {
+      width: 60px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent-dim), transparent);
+      margin: 2rem auto 0;
+      opacity: 0;
+      animation: fade-up 0.8s 0.55s ease forwards;
+    }
+
+    /* ── grid ── */
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 6rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 1.25rem;
+    }
+
+    /* ── card ── */
+    .card {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem 0.75rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: default;
+      transition: border-color 0.2s, transform 0.2s;
+      opacity: 0;
+      animation: fade-up 0.55s ease forwards;
+    }
+
+    .card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-3px);
+    }
+
+    .card:hover .tooltip {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .skin {
+      width: 76px;
+      height: 114px;
+      image-rendering: pixelated;
+      display: block;
+    }
+
+    .card-name {
+      font-family: 'Cinzel', serif;
+      font-size: 9.5px;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      color: var(--text);
+      margin-top: 0.9rem;
+      text-align: center;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    /* ── tooltip ── */
+    .tooltip {
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%) translateY(6px);
+      background: #1a1c22;
+      border: 1px solid rgba(184,154,106,0.3);
+      border-radius: 8px;
+      padding: 12px 14px;
+      min-width: 170px;
+      max-width: 220px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      z-index: 50;
+    }
+
+    .tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: rgba(184,154,106,0.3);
+    }
+
+    .tooltip-name {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 9px;
+      padding-bottom: 7px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .social-links {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .social-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Crimson Pro', serif;
+      font-size: 13px;
+      font-weight: 300;
+      color: #9a9590;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .social-link:hover { color: var(--text); }
+    .social-link svg { flex-shrink: 0; opacity: 0.75; }
+
+    .no-socials {
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ── footer ── */
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding-bottom: 3rem;
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* ── animations ── */
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Survival Multiplayer</p>
+  <h1>Wyrdcraft</h1>
+  <p class="tagline">meet the crew</p>
+  <div class="divider"></div>
+</header>
+
+<main>
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer>
+  <p>hover a member to see their links</p>
+</footer>
+
+<script>
+const YT  = url => ({ icon: 'yt',  label: 'YouTube', url });
+const TW  = url => ({ icon: 'tw',  label: 'Twitch',  url });
+
+const members = [
+  {
+    uuid: 'b94fbcc5862d4cf4a9fbf29cab6d2b4b',
+    name: 'dadmannwalking',
+    socials: [ YT('https://www.youtube.com/@dadmannwalking'), TW('https://www.twitch.tv/dadmannwalking') ]
+  },
+  {
+    uuid: '3043926fc1bc41efac32d852b20cb2ac',
+    name: 'Bean_theBrave',
+    socials: [ YT('https://www.youtube.com/@beanthebravegaming') ]
+  },
+  {
+    uuid: '8f43758dd3604939894ca5de999f738d',
+    name: 'SHO310',
+    socials: [ YT('https://www.youtube.com/@sho310yt'), TW('https://www.twitch.tv/sho310tv') ]
+  },
+  {
+    uuid: 'b217a1e38241422eb0a9d4a64e277028',
+    name: '_Mossy0',
+    socials: [ YT('https://www.youtube.com/@_Mossy') ]
+  },
+  {
+    uuid: 'e5daed5e36184f0fb1c40a31a2fa22ae',
+    name: 'REDPalette12',
+    socials: [ YT('https://www.youtube.com/@REDPalette12'), TW('https://www.twitch.tv/redpalette12') ]
+  },
+  {
+    uuid: '43b6799d5e8f4681bba90f74fc9e097b',
+    name: 'JustAnotherRem',
+    socials: [ YT('https://www.youtube.com/@JAR501'), TW('https://www.twitch.tv/JustAnotherRemnant') ]
+  },
+  {
+    uuid: '29c71fd3369c4cdca8de15de18363ba5',
+    name: '__Haunted',
+    socials: []
+  },
+  {
+    uuid: 'a248aa213e274a79889d72a3449a44b9',
+    name: 'Cocolydocoly',
+    socials: [ YT('https://www.youtube.com/@Cocolydocoly') ]
+  },
+  {
+    uuid: 'f45efb7e8c9c4b0098eab9c406f7ea6e',
+    name: 'GrimFalcon746',
+    socials: [ YT('https://www.youtube.com/@grimfalcon746'), TW('https://www.twitch.tv/grimfalcon746') ]
+  },
+  {
+    uuid: '5c3dbf4f8e764b72b74166df2d8f2ae4',
+    name: 'MarkimusGaming',
+    socials: [ YT('https://youtube.com/@markimusgaming'), TW('https://www.twitch.tv/markimusgaming') ]
+  },
+  {
+    uuid: '9c40344415e842fe9d1e76cb7dbebab2',
+    name: 'HeroicPixels',
+    socials: [ YT('https://www.youtube.com/@heroicpixels'), TW('https://www.twitch.tv/heroicpixels') ]
+  },
+  {
+    uuid: '4f0e2362fb154d7894fcbcab226fd292',
+    name: 'MrSevel',
+    socials: [ YT('https://youtube.com/@sevel-crew') ]
+  },
+  {
+    uuid: 'd938bf55d86e47eb941ff6fcd75ded6a',
+    name: '__haunted__',
+    socials: []
+  },
+  {
+    uuid: '60961e6862754798224 0990fc9e9f35',
+    name: 'ThatOneGuyJames',
+    socials: [ YT('https://www.youtube.com/@thatoneguyjames1') ]
+  },
+];
+
+const svgYT = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.3.3 4.3s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.8 12 21.8 12 21.8s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.3v-2C23.3 9.1 23 7 23 7zm-13.5 8.7V8.3l8.1 3.7-8.1 3.7z"/></svg>`;
+const svgTW = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M11.64 5.93c-2.17.06-3.9 1.83-3.9 4.01v.25c-3.27-.42-6.13-2.03-8.02-4.79-.33.57-.52 1.23-.52 1.93 0 1.39.71 2.62 1.78 3.34-.66-.02-1.28-.2-1.82-.5v.05c0 1.94 1.38 3.56 3.21 3.93-.34.09-.69.14-1.05.14-.26 0-.5-.03-.74-.07.5 1.56 1.96 2.7 3.68 2.73-1.35 1.06-3.05 1.69-4.9 1.69-.32 0-.63-.02-.94-.06 1.74 1.11 3.8 1.76 6.02 1.76 7.22 0 11.17-5.98 11.17-11.17 0-.17 0-.34-.01-.51.77-.55 1.43-1.24 1.96-2.03-.7.31-1.46.52-2.25.62.81-.48 1.43-1.25 1.72-2.16-.76.45-1.6.77-2.49.95-.71-.76-1.73-1.24-2.86-1.24l-.14.01z"/></svg>`;
+
+const iconMap = { yt: svgYT, tw: svgTW };
+
+const grid = document.getElementById('grid');
+
+members.forEach((m, i) => {
+  const skinUrl = `https://visage.surgeplay.com/full/128/${m.uuid}`;
+  const fallback = `https://visage.surgeplay.com/full/128/8667ba71b85a4004af54457a9734eed7`;
+
+  const linksHtml = m.socials.length
+    ? m.socials.map(s =>
+        `<a class="social-link" href="${s.url}" target="_blank" rel="noopener noreferrer">${iconMap[s.icon]}${s.label}</a>`
+      ).join('')
+    : `<span class="no-socials">no links yet</span>`;
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.style.animationDelay = `${0.05 * i + 0.6}s`;
+  card.innerHTML = `
+    <div class="tooltip">
+      <div class="tooltip-name">${m.name}</div>
+      <div class="social-links">${linksHtml}</div>
+    </div>
+    <img class="skin" src="${skinUrl}" alt="${m.name}'s Minecraft skin" onerror="this.src='${fallback}'" loading="lazy" />
+    <div class="card-name">${m.name}</div>
+  `;
+  grid.appendChild(card);
+});
+</script>
+</body>
+</html>
