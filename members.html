@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wyrdcraft — Latest Videos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0c0d0f;
+      --surface:     #13151a;
+      --surface-back:#181b23;
+      --border:      rgba(255,255,255,0.07);
+      --border-glow: rgba(184,154,106,0.35);
+      --text:        #e8e4dc;
+      --muted:       #7a7670;
+      --accent:      #b89a6a;
+      --accent-dim:  #6e5b3a;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Crimson Pro', Georgia, serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    #rune-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bottom-glow {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 280px;
+      background: radial-gradient(ellipse 90% 100% at 50% 100%,
+        rgba(120,80,180,0.18) 0%,
+        rgba(184,154,106,0.07) 45%,
+        transparent 75%);
+      pointer-events: none;
+      z-index: 0;
+      animation: glow-breathe 6s ease-in-out infinite;
+    }
+
+    @keyframes glow-breathe {
+      0%,100% { opacity: 0.7; }
+      50%      { opacity: 1; }
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(184,154,106,0.07) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── header ── */
+    header {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 5rem 1rem 3rem;
+    }
+
+    .eyebrow {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.35em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      opacity: 0;
+      animation: fade-up 0.8s 0.1s ease forwards;
+    }
+
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(2rem, 6vw, 3.8rem);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      color: var(--text);
+      line-height: 1;
+      opacity: 0;
+      animation: fade-up 0.8s 0.25s ease forwards;
+    }
+
+    .tagline {
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--muted);
+      margin-top: 0.9rem;
+      opacity: 0;
+      animation: fade-up 0.8s 0.4s ease forwards;
+    }
+
+    .divider {
+      width: 60px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent-dim), transparent);
+      margin: 2rem auto 0;
+      opacity: 0;
+      animation: fade-up 0.8s 0.55s ease forwards;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 1.5rem;
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      font-size: 13px;
+      color: var(--accent-dim);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      transition: color 0.2s;
+      opacity: 0;
+      animation: fade-up 0.8s 0.65s ease forwards;
+    }
+    .back-link:hover { color: var(--accent); }
+
+    /* ── section label ── */
+    .crew-label {
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      margin-bottom: 2.5rem;
+    }
+
+    .crew-label span {
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.4em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    /* ── main grid ── */
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem 8rem;
+    }
+
+    .members-grid {
+      display: grid;
+      gap: 1.2rem;
+      justify-content: center;
+      /* max 4 columns, centred at every breakpoint */
+      grid-template-columns: repeat(4, minmax(0, 260px));
+    }
+    @media (max-width: 1099px) { .members-grid { grid-template-columns: repeat(3, minmax(0, 260px)); } }
+    @media (max-width: 800px)  { .members-grid { grid-template-columns: repeat(2, minmax(0, 260px)); } }
+    @media (max-width: 540px)  { .members-grid { grid-template-columns: minmax(0, 320px); } }
+
+    /* ── member card ── */
+    .member-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      animation: fade-up 0.55s ease forwards;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .member-card:hover {
+      border-color: rgba(184,154,106,0.25);
+      box-shadow: 0 0 22px 2px rgba(120,80,180,0.1);
+    }
+
+    /* ── thumbnail ── */
+    .thumb-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: var(--surface-back);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .thumb-wrap a {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .thumb-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.82;
+      transition: opacity 0.3s, transform 0.4s;
+      display: block;
+    }
+
+    .member-card:hover .thumb-wrap img {
+      opacity: 0.95;
+      transform: scale(1.03);
+    }
+
+    .play-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0);
+      transition: background 0.25s;
+    }
+
+    .member-card:hover .play-overlay { background: rgba(0,0,0,0.25); }
+
+    .play-circle {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(184,154,106,0.88);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: scale(0.75);
+      transition: opacity 0.25s, transform 0.25s;
+    }
+
+    .member-card:hover .play-circle { opacity: 1; transform: scale(1); }
+
+    .play-circle svg { width: 15px; height: 15px; fill: var(--bg); margin-left: 3px; }
+
+    .thumb-skeleton {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #13151a 25%, #1d2029 50%, #13151a 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s infinite;
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ── card body ── */
+    .card-body {
+      padding: 1rem 1.15rem 1.15rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding-bottom: 0.65rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .skin-avatar {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+      image-rendering: pixelated;
+      border-radius: 3px;
+      background: var(--surface-back);
+    }
+
+    .creator-info { flex: 1; min-width: 0; }
+
+    .creator-name {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .creator-yt-link {
+      font-family: 'Crimson Pro', serif;
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--muted);
+      text-decoration: none;
+      font-style: italic;
+      transition: color 0.2s;
+    }
+
+    .creator-yt-link:hover { color: var(--accent); }
+
+    .video-title {
+      font-family: 'Crimson Pro', serif;
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--text);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .video-title a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .video-title a:hover { color: var(--accent); }
+
+    .video-meta {
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .video-loading, .no-video {
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .thumb-empty {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .thumb-empty span {
+      font-family: 'Cinzel', serif;
+      font-size: 8px;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      text-transform: uppercase;
+      opacity: 0.5;
+    }
+
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding-bottom: 3rem;
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+
+  </style>
+</head>
+<body>
+
+<canvas id="rune-canvas" aria-hidden="true"></canvas>
+<div class="bottom-glow" aria-hidden="true"></div>
+
+<header>
+  <p class="eyebrow">Survival Multiplayer</p>
+  <h1>Wyrdcraft</h1>
+  <p class="tagline">Latest from the crew</p>
+  <div class="divider"></div>
+  <a href="index.html" class="back-link">back to the crew</a>
+</header>
+
+<div class="crew-label"><span>recent videos</span></div>
+
+<main>
+  <div class="members-grid" id="members-grid"></div>
+</main>
+
+<footer></footer>
+
+<script>
+/* ── RUNE ANIMATION ── */
+(function () {
+  const canvas = document.getElementById('rune-canvas');
+  const ctx    = canvas.getContext('2d');
+  const RUNES  = ['ᚠ','ᚢ','ᚦ','ᚨ','ᚱ','ᚲ','ᚷ','ᚹ','ᚺ','ᚾ',
+                  'ᛁ','ᛃ','ᛇ','ᛈ','ᛉ','ᛊ','ᛏ','ᛒ','ᛖ','ᛗ',
+                  'ᛚ','ᛜ','ᛞ','ᛟ','ᚻ','ᚼ','ᛦ','ᛥ','ᛣ','ᛤ'];
+  const GOLD   = [184, 154, 106];
+  const PURPLE = [120,  80, 180];
+  let W, H, particles;
+  function rand(a, b) { return Math.random() * (b - a) + a; }
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  function makeParticle(staggerY) {
+    const cursed = Math.random() < 0.42;
+    const col    = cursed ? PURPLE : GOLD;
+    const size   = rand(12, 26);
+    const dur    = rand(12000, 28000);
+    const startMs = staggerY ? -(Math.random() * dur) : 0;
+    return {
+      x0: rand(0, W), drift: rand(-40, 40), size,
+      rune: RUNES[Math.floor(Math.random() * RUNES.length)],
+      r: col[0], g: col[1], b: col[2],
+      peakA: rand(0.05, cursed ? 0.16 : 0.21),
+      dur, startMs,
+      rot0: rand(-0.5, 0.5), rotSpd: rand(-0.0008, 0.0008),
+      flicker: cursed, ft: rand(0, Math.PI * 2),
+    };
+  }
+  function initParticles() {
+    const count = Math.max(20, Math.floor(W * H / 20000));
+    particles = Array.from({ length: count }, () => makeParticle(true));
+  }
+  let lastTs = null;
+  function tick(ts) {
+    if (!lastTs) lastTs = ts;
+    const dt = ts - lastTs; lastTs = ts;
+    ctx.clearRect(0, 0, W, H);
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      p.startMs += dt; p.ft += dt * 0.0018;
+      let prog = p.startMs / p.dur;
+      if (prog >= 1) { particles[i] = makeParticle(false); continue; }
+      const y   = H + p.size - (H + p.size * 3) * prog;
+      const x   = p.x0 + p.drift * prog;
+      const rot = p.rot0 + p.rotSpd * p.startMs;
+      let alpha;
+      if (p.flicker) {
+        alpha = p.peakA * (1 - prog) * (0.5 + 0.5 * Math.sin(p.ft * 2.2 + Math.sin(p.ft * 3.5)));
+      } else {
+        const fi = Math.min(1, prog / 0.15);
+        const fo = prog > 0.75 ? Math.max(0, 1 - (prog - 0.75) / 0.25) : 1;
+        alpha = p.peakA * fi * fo;
+      }
+      ctx.save();
+      ctx.translate(x, y); ctx.rotate(rot);
+      ctx.globalAlpha = Math.min(1, Math.max(0, alpha));
+      ctx.fillStyle   = `rgb(${p.r},${p.g},${p.b})`;
+      ctx.font        = `${p.size}px serif`;
+      ctx.textAlign   = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(p.rune, 0, 0);
+      ctx.restore();
+    }
+    requestAnimationFrame(tick);
+  }
+  resize(); initParticles(); requestAnimationFrame(tick);
+  window.addEventListener('resize', () => { resize(); initParticles(); });
+})();
+
+/* ── MEMBERS DATA ── */
+const MEMBERS = [
+  { name: 'dadmannwalking', channelId: 'UCujCK_S6r09xamdk9Z7yj5Q', uuid: 'b94fbcc5862d4cf4a9fbf29cab6d2b4b', handle: '@dadmannwalking',     ytUrl: 'https://www.youtube.com/@dadmannwalking' },
+  { name: 'SHO310',         channelId: 'UCtaxALTmlbYVTLhMBaOgPzQ', uuid: '8f43758dd3604939894ca5de999f738d', handle: '@sho310yt',             ytUrl: 'https://www.youtube.com/@sho310yt' },
+  { name: 'REDPalette12',   channelId: 'UCfpx_3Ubb5n7dZX5FUPgZRg', uuid: 'e5daed5e36184f0fb1c40a31a2fa22ae', handle: '@REDPalette12',         ytUrl: 'https://www.youtube.com/@REDPalette12' },
+  { name: 'Cocolydocoly',   channelId: 'UCmh8MJxhFxwjL70vKw3pNjQ', uuid: 'a248aa213e274a79889d72a3449a44b9', handle: '@Cocolydocoly',         ytUrl: 'https://www.youtube.com/@Cocolydocoly' },
+  { name: 'HeroicPixels',   channelId: 'UCxvB45E9ndX009eQVitKUMw', uuid: '9c40344415e842fe9d1e76cb7dbebab2', handle: '@heroicpixels',         ytUrl: 'https://www.youtube.com/@heroicpixels' },
+  { name: '__haunted__',    channelId: 'UC1dBBBwhUpY4yixYjF6-JBw', uuid: 'd938bf55d86e47eb941ff6fcd75ded6a', handle: '@haunted_minecrafting', ytUrl: 'https://www.youtube.com/@haunted_minecrafting' },
+  { name: 'ThatOneGuyJames', channelId: 'UC2VNrjDQYGuRwGilqb3x_Xw', uuid: '60961e686275479c82240990fc9e9f35', handle: '@thatoneguyjames1',     ytUrl: 'https://www.youtube.com/@thatoneguyjames1' },
+];
+
+/* ── TIME HELPER ── */
+function timeAgo(dateStr) {
+  const diff = (Date.now() - new Date(dateStr)) / 1000;
+  if (diff < 3600)    return Math.round(diff / 60) + 'm ago';
+  if (diff < 86400)   return Math.round(diff / 3600) + 'h ago';
+  if (diff < 604800)  return Math.round(diff / 86400) + 'd ago';
+  if (diff < 2592000) return Math.round(diff / 604800) + 'w ago';
+  return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+/* ── YOUTUBE RSS FETCHING ──────────────────────────────────────────────────
+   Strategy:
+   1. Fetch the creator's YouTube channel page via allorigins CORS proxy.
+   2. Extract the UC... channel ID from the page source.
+   3. Fetch the public YouTube Atom RSS feed for that channel ID.
+      (YouTube RSS only supports channel IDs, not @handles directly.)
+   This requires no API key and works on any static host including GitHub Pages.
+──────────────────────────────────────────────────────────────────────────── */
+// const PROXY = 'https://api.allorigins.win/get?url=';
+const PROXY = 'https://corsproxy.io/?';
+
+async function resolveChannelId(handle) {
+  const proxied = PROXY + encodeURIComponent('https://www.youtube.com/' + handle);
+  const res  = await fetch(proxied, { signal: AbortSignal.timeout(12000) });
+  const data = await res.json();
+  const html = data.contents || '';
+  const m    = html.match(/"channelId":"(UC[^"]+)"/)
+            || html.match(/"externalId":"(UC[^"]+)"/)
+            || html.match(/\/channel\/(UC[^"\/\?&]+)/);
+  return m ? m[1] : null;
+}
+
+async function fetchLatestVideo(channelId) {
+  const feedUrl = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + channelId;
+  const proxied = PROXY + encodeURIComponent(feedUrl);
+  const res  = await fetch(proxied, { signal: AbortSignal.timeout(12000) });
+  const data = await res.json();
+  const xml  = new DOMParser().parseFromString(data.contents, 'text/xml');
+  const entry = xml.querySelector('entry');
+  if (!entry) return null;
+  const videoId   = entry.querySelector('videoId')?.textContent;
+  const title     = entry.querySelector('title')?.textContent;
+  const published = entry.querySelector('published')?.textContent;
+  const thumbUrl  = entry.querySelector('thumbnail')?.getAttribute('url')
+                 || (videoId ? 'https://i.ytimg.com/vi/' + videoId + '/mqdefault.jpg' : null);
+  return { videoId, title, published, thumbUrl };
+}
+
+/* ── BUILD CARD (skeleton) ── */
+function buildCard(member, index) {
+  const skinUrl  = 'https://visage.surgeplay.com/face/32/' + member.uuid;
+  const fallback = 'https://visage.surgeplay.com/face/32/8667ba71b85a4004af54457a9734eed7';
+  const card = document.createElement('div');
+  card.className = 'member-card';
+  card.style.animationDelay = (0.05 * index + 0.5) + 's';
+  card.innerHTML =
+    '<div class="thumb-wrap"><div class="thumb-skeleton"></div></div>' +
+    '<div class="card-body">' +
+      '<div class="card-top">' +
+        '<img class="skin-avatar" src="' + skinUrl + '" alt="' + member.name + '" onerror="this.src=\'' + fallback + '\'" loading="lazy" />' +
+        '<div class="creator-info">' +
+          '<div class="creator-name">' + member.name + '</div>' +
+          '<a class="creator-yt-link" href="' + member.ytUrl + '" target="_blank" rel="noopener">' + member.handle + '</a>' +
+        '</div>' +
+      '</div>' +
+      '<p class="video-loading">Loading latest video\u2026</p>' +
+    '</div>';
+  return card;
+}
+
+/* ── POPULATE CARD ── */
+function populateCard(card, member, video) {
+  const thumbWrap = card.querySelector('.thumb-wrap');
+  const loadingEl = card.querySelector('.video-loading');
+  if (!video) {
+    thumbWrap.innerHTML = '<div class="thumb-empty"><span>no video found</span></div>';
+    if (loadingEl) loadingEl.className = 'no-video';
+    if (loadingEl) loadingEl.textContent = 'Could not load latest video.';
+    return;
+  }
+  const ytUrl = 'https://www.youtube.com/watch?v=' + video.videoId;
+  thumbWrap.innerHTML =
+    '<a href="' + ytUrl + '" target="_blank" rel="noopener">' +
+      '<img src="' + video.thumbUrl + '" alt="' + video.title.replace(/"/g, '&quot;') + '" loading="lazy" />' +
+      '<div class="play-overlay"><div class="play-circle"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>' +
+    '</a>';
+  const body = card.querySelector('.card-body');
+  if (loadingEl) loadingEl.remove();
+  body.insertAdjacentHTML('beforeend',
+    '<p class="video-title"><a href="' + ytUrl + '" target="_blank" rel="noopener">' + video.title + '</a></p>' +
+    '<p class="video-meta">' + timeAgo(video.published) + '</p>'
+  );
+}
+
+/* ── YOUTUBE API KEY (optional upgrade) ────────────────────────────────────
+   If you want more reliable fetching, you can use the YouTube Data API v3.
+   1. Go to https://console.cloud.google.com → Create project → Enable "YouTube Data API v3"
+   2. Create an API key → Under "API restrictions" restrict to "YouTube Data API v3"
+   3. Under "Application restrictions" set to "HTTP referrers" and add your GitHub Pages
+      domain, e.g.  https://YOUR-USERNAME.github.io/*
+   4. Paste your key below and set USE_API_KEY = true
+   With the key restricted to your domain it is safe to commit to a public repo.
+────────────────────────────────────────────────────────────────────────── */
+const API_KEY     = 'AIzaSyDxRU7kur0YcnipiY9hC6zM9L9_ufk8_9A';       // paste your key here
+const USE_API_KEY = true;    // set to true once key is added
+
+/* ── INIT ── */
+async function init() {
+  const grid = document.getElementById('members-grid');
+  const entries = MEMBERS.map(function(member, i) {
+    const card = buildCard(member, i);
+    grid.appendChild(card);
+    return { card, member };
+  });
+
+  await Promise.allSettled(entries.map(function(entry) {
+    const { card, member } = entry;
+
+    // Prefer YouTube Data API if key is set — more reliable, no CORS proxy needed
+    if (USE_API_KEY && API_KEY) {
+      const apiUrl = 'https://www.googleapis.com/youtube/v3/search?key=' + API_KEY
+        + '&channelId=' + member.channelId
+        + '&part=snippet&order=date&maxResults=1&type=video';
+      return fetch(apiUrl)
+        .then(r => r.json())
+        .then(data => {
+          const item = data.items && data.items[0];
+          if (!item) return null;
+          const vid = item.id.videoId;
+          return {
+            videoId:   vid,
+            title:     item.snippet.title,
+            published: item.snippet.publishedAt,
+            thumbUrl:  item.snippet.thumbnails.medium.url,
+          };
+        })
+        .then(video => populateCard(card, member, video))
+        .catch(err  => { console.warn('[' + member.name + '] API error:', err.message); populateCard(card, member, null); });
+    }
+
+    // Fallback: use public RSS feed via CORS proxy (no key needed)
+    const feedUrl = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + member.channelId;
+    const proxied = PROXY + encodeURIComponent(feedUrl);
+    return fetch(proxied, { signal: AbortSignal.timeout(12000) })
+      .then(r => r.json())
+      .then(data => {
+        const xml   = new DOMParser().parseFromString(data.contents, 'text/xml');
+        const entry = xml.querySelector('entry');
+        if (!entry) return null;
+        const videoId   = entry.querySelector('videoId')?.textContent;
+        const title     = entry.querySelector('title')?.textContent;
+        const published = entry.querySelector('published')?.textContent;
+        const thumbUrl  = entry.querySelector('thumbnail')?.getAttribute('url')
+                       || (videoId ? 'https://i.ytimg.com/vi/' + videoId + '/mqdefault.jpg' : null);
+        return { videoId, title, published, thumbUrl };
+      })
+      .then(video => populateCard(card, member, video))
+      .catch(err  => { console.warn('[' + member.name + '] RSS error:', err.message); populateCard(card, member, null); });
+  }));
+}
+
+init();
+</script>
+</body>
+</html>
