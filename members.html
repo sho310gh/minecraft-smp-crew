@@ -15,7 +15,7 @@
       --surface:     #13151a;
       --surface-back:#181b23;
       --border:      rgba(255,255,255,0.07);
-      --border-glow: rgba(184,154,106,0.35);
+      --border-hover:rgba(184,154,106,0.28);
       --text:        #e8e4dc;
       --muted:       #7a7670;
       --accent:      #b89a6a;
@@ -33,354 +33,234 @@
     }
 
     #rune-canvas {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 0;
+      position: fixed; inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; z-index: 0;
     }
 
     .bottom-glow {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      height: 280px;
+      position: fixed; bottom: 0; left: 0; right: 0; height: 280px;
       background: radial-gradient(ellipse 90% 100% at 50% 100%,
-        rgba(120,80,180,0.18) 0%,
-        rgba(184,154,106,0.07) 45%,
-        transparent 75%);
-      pointer-events: none;
-      z-index: 0;
+        rgba(120,80,180,0.18) 0%, rgba(184,154,106,0.07) 45%, transparent 75%);
+      pointer-events: none; z-index: 0;
       animation: glow-breathe 6s ease-in-out infinite;
     }
 
-    @keyframes glow-breathe {
-      0%,100% { opacity: 0.7; }
-      50%      { opacity: 1; }
-    }
+    @keyframes glow-breathe { 0%,100%{opacity:.7} 50%{opacity:1} }
 
     body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
+      content: ''; position: fixed; inset: 0;
       background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(184,154,106,0.07) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
+      pointer-events: none; z-index: 0;
     }
 
     /* ── header ── */
     header {
-      position: relative;
-      z-index: 1;
-      text-align: center;
-      padding: 5rem 1rem 3rem;
+      position: relative; z-index: 1;
+      text-align: center; padding: 5rem 1rem 2.5rem;
     }
 
     .eyebrow {
-      font-family: 'Cinzel', serif;
-      font-size: 10px;
-      font-weight: 400;
-      letter-spacing: 0.35em;
-      color: var(--accent);
-      text-transform: uppercase;
-      margin-bottom: 1rem;
-      opacity: 0;
-      animation: fade-up 0.8s 0.1s ease forwards;
+      font-family: 'Cinzel', serif; font-size: 10px; font-weight: 400;
+      letter-spacing: 0.35em; color: var(--accent); text-transform: uppercase;
+      margin-bottom: 1rem; opacity: 0; animation: fade-up 0.8s 0.1s ease forwards;
     }
 
     h1 {
-      font-family: 'Cinzel', serif;
-      font-size: clamp(2rem, 6vw, 3.8rem);
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      color: var(--text);
-      line-height: 1;
-      opacity: 0;
-      animation: fade-up 0.8s 0.25s ease forwards;
+      font-family: 'Cinzel', serif; font-size: clamp(2rem, 6vw, 3.8rem);
+      font-weight: 600; letter-spacing: 0.12em; color: var(--text); line-height: 1;
+      opacity: 0; animation: fade-up 0.8s 0.25s ease forwards;
     }
 
     .tagline {
-      font-family: 'Crimson Pro', serif;
-      font-style: italic;
-      font-size: 1rem;
-      font-weight: 300;
-      color: var(--muted);
-      margin-top: 0.9rem;
-      opacity: 0;
-      animation: fade-up 0.8s 0.4s ease forwards;
+      font-family: 'Crimson Pro', serif; font-style: italic; font-size: 1rem;
+      font-weight: 300; color: var(--muted); margin-top: 0.9rem;
+      opacity: 0; animation: fade-up 0.8s 0.4s ease forwards;
     }
 
     .divider {
-      width: 60px;
-      height: 1px;
+      width: 60px; height: 1px;
       background: linear-gradient(90deg, transparent, var(--accent-dim), transparent);
-      margin: 2rem auto 0;
-      opacity: 0;
-      animation: fade-up 0.8s 0.55s ease forwards;
+      margin: 1.8rem auto 0; opacity: 0; animation: fade-up 0.8s 0.55s ease forwards;
     }
 
     .back-link {
-      display: inline-block;
-      margin-top: 1.5rem;
-      font-family: 'Crimson Pro', serif;
-      font-style: italic;
-      font-size: 13px;
-      color: var(--accent-dim);
-      text-decoration: none;
-      letter-spacing: 0.04em;
-      transition: color 0.2s;
-      opacity: 0;
-      animation: fade-up 0.8s 0.65s ease forwards;
+      display: inline-block; margin-top: 1.4rem;
+      font-family: 'Crimson Pro', serif; font-style: italic;
+      font-size: 13px; color: var(--accent-dim); text-decoration: none;
+      letter-spacing: 0.04em; transition: color 0.2s;
+      opacity: 0; animation: fade-up 0.8s 0.65s ease forwards;
     }
     .back-link:hover { color: var(--accent); }
 
-    /* ── section label ── */
-    .crew-label {
-      text-align: center;
-      position: relative;
-      z-index: 1;
-      margin-bottom: 2.5rem;
+    /* ── tabs ── */
+    .tabs-wrap {
+      position: relative; z-index: 1;
+      display: flex; justify-content: center; gap: 0;
+      padding: 2.5rem 1rem 0;
     }
 
-    .crew-label span {
-      font-family: 'Cinzel', serif;
-      font-size: 9px;
-      font-weight: 400;
-      letter-spacing: 0.4em;
+    .tab-btn {
+      font-family: 'Cinzel', serif; font-size: 10px; font-weight: 400;
+      letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--muted); background: none; border: none;
+      border-bottom: 1px solid var(--border);
+      padding: 0.6rem 2rem 0.7rem; cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .tab-btn:hover { color: var(--text); }
+
+    .tab-btn.active {
       color: var(--accent);
-      text-transform: uppercase;
+      border-bottom: 1px solid var(--accent);
     }
 
-    /* ── main grid ── */
+    /* ── main ── */
     main {
-      position: relative;
-      z-index: 1;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 1.5rem 8rem;
+      position: relative; z-index: 1;
+      max-width: 1280px; margin: 0 auto;
+      padding: 2.5rem 1.5rem 8rem;
     }
 
-    .members-grid {
+    /* ── video grid — hermitcraft style ── */
+    .video-grid {
       display: grid;
-      gap: 1.2rem;
-      justify-content: center;
-      /* max 4 columns, centred at every breakpoint */
-      grid-template-columns: repeat(4, minmax(0, 260px));
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.1rem;
     }
-    @media (max-width: 1099px) { .members-grid { grid-template-columns: repeat(3, minmax(0, 260px)); } }
-    @media (max-width: 800px)  { .members-grid { grid-template-columns: repeat(2, minmax(0, 260px)); } }
-    @media (max-width: 540px)  { .members-grid { grid-template-columns: minmax(0, 320px); } }
 
-    /* ── member card ── */
-    .member-card {
+    @media (max-width: 1100px) { .video-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 780px)  { .video-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 480px)  { .video-grid { grid-template-columns: 1fr; } }
+
+    /* ── video card ── */
+    .video-card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      opacity: 0;
-      animation: fade-up 0.55s ease forwards;
-      transition: border-color 0.3s, box-shadow 0.3s;
+      border-radius: 8px; overflow: hidden;
+      display: flex; flex-direction: column;
+      opacity: 0; animation: fade-up 0.5s ease forwards;
+      transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+      text-decoration: none; color: inherit;
     }
 
-    .member-card:hover {
-      border-color: rgba(184,154,106,0.25);
-      box-shadow: 0 0 22px 2px rgba(120,80,180,0.1);
+    .video-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.35);
     }
 
-    /* ── thumbnail ── */
-    .thumb-wrap {
+    /* thumbnail */
+    .thumb {
       position: relative;
-      width: 100%;
-      aspect-ratio: 16/9;
-      background: var(--surface-back);
-      overflow: hidden;
-      flex-shrink: 0;
+      width: 100%; aspect-ratio: 16/9;
+      background: var(--surface-back); overflow: hidden; flex-shrink: 0;
     }
 
-    .thumb-wrap a {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
-
-    .thumb-wrap img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0.82;
+    .thumb img {
+      width: 100%; height: 100%; object-fit: cover;
+      display: block; opacity: 0.85;
       transition: opacity 0.3s, transform 0.4s;
-      display: block;
     }
 
-    .member-card:hover .thumb-wrap img {
-      opacity: 0.95;
-      transform: scale(1.03);
+    .video-card:hover .thumb img { opacity: 1; transform: scale(1.04); }
+
+    .play-btn {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0); transition: background 0.25s;
     }
 
-    .play-overlay {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0,0,0,0);
-      transition: background 0.25s;
-    }
-
-    .member-card:hover .play-overlay { background: rgba(0,0,0,0.25); }
+    .video-card:hover .play-btn { background: rgba(0,0,0,0.22); }
 
     .play-circle {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: rgba(184,154,106,0.88);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transform: scale(0.75);
-      transition: opacity 0.25s, transform 0.25s;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(184,154,106,0.9);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transform: scale(0.8);
+      transition: opacity 0.22s, transform 0.22s;
     }
 
-    .member-card:hover .play-circle { opacity: 1; transform: scale(1); }
+    .video-card:hover .play-circle { opacity: 1; transform: scale(1); }
+    .play-circle svg { width: 14px; height: 14px; fill: #0c0d0f; margin-left: 2px; }
 
-    .play-circle svg { width: 15px; height: 15px; fill: var(--bg); margin-left: 3px; }
+    /* duration badge */
+    .duration {
+      position: absolute; bottom: 6px; right: 7px;
+      font-family: 'Cinzel', serif; font-size: 9px;
+      letter-spacing: 0.06em; color: #e8e4dc;
+      background: rgba(12,13,15,0.82);
+      padding: 2px 6px; border-radius: 3px;
+    }
 
+    /* shimmer skeleton */
     .thumb-skeleton {
-      width: 100%;
-      height: 100%;
+      width: 100%; height: 100%;
       background: linear-gradient(90deg, #13151a 25%, #1d2029 50%, #13151a 75%);
       background-size: 200% 100%;
       animation: shimmer 1.6s infinite;
     }
 
-    @keyframes shimmer {
-      0%   { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    /* card meta row */
+    .card-meta {
+      padding: 0.75rem 0.9rem 0.85rem;
+      display: flex; flex-direction: column; gap: 0.4rem; flex: 1;
     }
 
-    /* ── card body ── */
-    .card-body {
-      padding: 1rem 1.15rem 1.15rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      flex: 1;
+    .video-title-text {
+      font-family: 'Crimson Pro', serif; font-size: 14px; font-weight: 400;
+      color: var(--text); line-height: 1.45;
+      display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden;
     }
 
-    .card-top {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding-bottom: 0.65rem;
-      border-bottom: 1px solid var(--border);
+    .video-card:hover .video-title-text { color: var(--accent); }
+
+    .creator-row {
+      display: flex; align-items: center; gap: 7px; margin-top: auto; padding-top: 0.5rem;
+      border-top: 1px solid var(--border);
     }
 
-    .skin-avatar {
-      width: 32px;
-      height: 32px;
-      flex-shrink: 0;
-      image-rendering: pixelated;
-      border-radius: 3px;
-      background: var(--surface-back);
+    .creator-avatar {
+      width: 22px; height: 22px; border-radius: 3px;
+      image-rendering: pixelated; background: var(--surface-back); flex-shrink: 0;
     }
 
-    .creator-info { flex: 1; min-width: 0; }
-
-    .creator-name {
-      font-family: 'Cinzel', serif;
-      font-size: 10px;
-      font-weight: 400;
-      letter-spacing: 0.1em;
-      color: var(--accent);
-      text-transform: uppercase;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .creator-name-text {
+      font-family: 'Cinzel', serif; font-size: 8.5px; font-weight: 400;
+      letter-spacing: 0.1em; color: var(--accent); text-transform: uppercase;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;
     }
 
-    .creator-yt-link {
-      font-family: 'Crimson Pro', serif;
-      font-size: 12px;
-      font-weight: 300;
-      color: var(--muted);
-      text-decoration: none;
-      font-style: italic;
-      transition: color 0.2s;
+    .time-ago {
+      font-family: 'Crimson Pro', serif; font-style: italic;
+      font-size: 11px; color: var(--muted); white-space: nowrap; flex-shrink: 0;
     }
 
-    .creator-yt-link:hover { color: var(--accent); }
-
-    .video-title {
-      font-family: 'Crimson Pro', serif;
-      font-size: 15px;
-      font-weight: 400;
-      color: var(--text);
-      line-height: 1.5;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+    /* status messages */
+    .status-msg {
+      grid-column: 1 / -1; text-align: center;
+      font-family: 'Crimson Pro', serif; font-style: italic;
+      font-size: 14px; color: var(--muted); padding: 3rem 0;
     }
 
-    .video-title a {
-      color: inherit;
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .video-title a:hover { color: var(--accent); }
-
-    .video-meta {
-      font-family: 'Crimson Pro', serif;
-      font-style: italic;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .video-loading, .no-video {
-      font-family: 'Crimson Pro', serif;
-      font-style: italic;
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .thumb-empty {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .thumb-empty span {
-      font-family: 'Cinzel', serif;
-      font-size: 8px;
-      letter-spacing: 0.2em;
-      color: var(--muted);
-      text-transform: uppercase;
-      opacity: 0.5;
-    }
+    /* tab panels */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
 
     footer {
-      position: relative;
-      z-index: 1;
-      text-align: center;
-      padding-bottom: 3rem;
-      font-family: 'Crimson Pro', serif;
-      font-style: italic;
-      font-size: 13px;
-      color: var(--muted);
+      position: relative; z-index: 1; text-align: center;
+      padding-bottom: 3rem; font-family: 'Crimson Pro', serif;
+      font-style: italic; font-size: 13px; color: var(--muted);
     }
 
     @keyframes fade-up {
-      from { opacity: 0; transform: translateY(14px); }
+      from { opacity: 0; transform: translateY(12px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-
-
   </style>
 </head>
 <body>
@@ -393,98 +273,79 @@
   <h1>Wyrdcraft</h1>
   <p class="tagline">Latest from the crew</p>
   <div class="divider"></div>
-  <a href="index.html" class="back-link">back to the crew</a>
+  <a href="index.html" class="back-link">← back to the crew</a>
 </header>
 
-<div class="crew-label"><span>recent videos</span></div>
+<!-- tabs -->
+<div class="tabs-wrap">
+  <button class="tab-btn active" data-tab="latest">Latest</button>
+  <button class="tab-btn" data-tab="creators">Creators</button>
+</div>
 
 <main>
-  <div class="members-grid" id="members-grid"></div>
+  <div class="tab-panel active" id="panel-latest">
+    <div class="video-grid" id="grid-latest"></div>
+  </div>
+  <div class="tab-panel" id="panel-creators">
+    <div class="video-grid" id="grid-creators"></div>
+  </div>
 </main>
 
 <footer></footer>
 
 <script>
 /* ── RUNE ANIMATION ── */
-(function () {
-  const canvas = document.getElementById('rune-canvas');
-  const ctx    = canvas.getContext('2d');
-  const RUNES  = ['ᚠ','ᚢ','ᚦ','ᚨ','ᚱ','ᚲ','ᚷ','ᚹ','ᚺ','ᚾ',
-                  'ᛁ','ᛃ','ᛇ','ᛈ','ᛉ','ᛊ','ᛏ','ᛒ','ᛖ','ᛗ',
-                  'ᛚ','ᛜ','ᛞ','ᛟ','ᚻ','ᚼ','ᛦ','ᛥ','ᛣ','ᛤ'];
-  const GOLD   = [184, 154, 106];
-  const PURPLE = [120,  80, 180];
-  let W, H, particles;
-  function rand(a, b) { return Math.random() * (b - a) + a; }
-  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-  function makeParticle(staggerY) {
-    const cursed = Math.random() < 0.42;
-    const col    = cursed ? PURPLE : GOLD;
-    const size   = rand(12, 26);
-    const dur    = rand(12000, 28000);
-    const startMs = staggerY ? -(Math.random() * dur) : 0;
-    return {
-      x0: rand(0, W), drift: rand(-40, 40), size,
-      rune: RUNES[Math.floor(Math.random() * RUNES.length)],
-      r: col[0], g: col[1], b: col[2],
-      peakA: rand(0.05, cursed ? 0.16 : 0.21),
-      dur, startMs,
-      rot0: rand(-0.5, 0.5), rotSpd: rand(-0.0008, 0.0008),
-      flicker: cursed, ft: rand(0, Math.PI * 2),
-    };
-  }
-  function initParticles() {
-    const count = Math.max(20, Math.floor(W * H / 20000));
-    particles = Array.from({ length: count }, () => makeParticle(true));
-  }
-  let lastTs = null;
-  function tick(ts) {
-    if (!lastTs) lastTs = ts;
-    const dt = ts - lastTs; lastTs = ts;
-    ctx.clearRect(0, 0, W, H);
-    for (let i = 0; i < particles.length; i++) {
-      const p = particles[i];
-      p.startMs += dt; p.ft += dt * 0.0018;
-      let prog = p.startMs / p.dur;
-      if (prog >= 1) { particles[i] = makeParticle(false); continue; }
-      const y   = H + p.size - (H + p.size * 3) * prog;
-      const x   = p.x0 + p.drift * prog;
-      const rot = p.rot0 + p.rotSpd * p.startMs;
-      let alpha;
-      if (p.flicker) {
-        alpha = p.peakA * (1 - prog) * (0.5 + 0.5 * Math.sin(p.ft * 2.2 + Math.sin(p.ft * 3.5)));
-      } else {
-        const fi = Math.min(1, prog / 0.15);
-        const fo = prog > 0.75 ? Math.max(0, 1 - (prog - 0.75) / 0.25) : 1;
-        alpha = p.peakA * fi * fo;
-      }
-      ctx.save();
-      ctx.translate(x, y); ctx.rotate(rot);
-      ctx.globalAlpha = Math.min(1, Math.max(0, alpha));
-      ctx.fillStyle   = `rgb(${p.r},${p.g},${p.b})`;
-      ctx.font        = `${p.size}px serif`;
-      ctx.textAlign   = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(p.rune, 0, 0);
-      ctx.restore();
-    }
-    requestAnimationFrame(tick);
-  }
-  resize(); initParticles(); requestAnimationFrame(tick);
-  window.addEventListener('resize', () => { resize(); initParticles(); });
+(function(){
+  const canvas=document.getElementById('rune-canvas'),ctx=canvas.getContext('2d');
+  const RUNES=['ᚠ','ᚢ','ᚦ','ᚨ','ᚱ','ᚲ','ᚷ','ᚹ','ᚺ','ᚾ','ᛁ','ᛃ','ᛇ','ᛈ','ᛉ','ᛊ','ᛏ','ᛒ','ᛖ','ᛗ','ᛚ','ᛜ','ᛞ','ᛟ','ᚻ','ᚼ','ᛦ','ᛥ','ᛣ','ᛤ'];
+  const GOLD=[184,154,106],PURPLE=[120,80,180];
+  let W,H,particles;
+  function rand(a,b){return Math.random()*(b-a)+a;}
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+  function makeP(stagger){const c=Math.random()<0.42,col=c?PURPLE:GOLD,size=rand(12,26),dur=rand(12000,28000);return{x0:rand(0,W),drift:rand(-40,40),size,rune:RUNES[Math.floor(Math.random()*RUNES.length)],r:col[0],g:col[1],b:col[2],peakA:rand(0.05,c?0.16:0.21),dur,startMs:stagger?-(Math.random()*dur):0,rot0:rand(-0.5,0.5),rotSpd:rand(-0.0008,0.0008),flicker:c,ft:rand(0,Math.PI*2)};}
+  function init(){const n=Math.max(20,Math.floor(W*H/20000));particles=Array.from({length:n},()=>makeP(true));}
+  let last=null;
+  function tick(ts){if(!last)last=ts;const dt=ts-last;last=ts;ctx.clearRect(0,0,W,H);
+    for(let i=0;i<particles.length;i++){const p=particles[i];p.startMs+=dt;p.ft+=dt*0.0018;
+      const prog=p.startMs/p.dur;if(prog>=1){particles[i]=makeP(false);continue;}
+      const y=H+p.size-(H+p.size*3)*prog,x=p.x0+p.drift*prog,rot=p.rot0+p.rotSpd*p.startMs;
+      let alpha;if(p.flicker){alpha=p.peakA*(1-prog)*(0.5+0.5*Math.sin(p.ft*2.2+Math.sin(p.ft*3.5)));}
+      else{const fi=Math.min(1,prog/0.15),fo=prog>0.75?Math.max(0,1-(prog-0.75)/0.25):1;alpha=p.peakA*fi*fo;}
+      ctx.save();ctx.translate(x,y);ctx.rotate(rot);ctx.globalAlpha=Math.min(1,Math.max(0,alpha));
+      ctx.fillStyle=`rgb(${p.r},${p.g},${p.b})`;ctx.font=`${p.size}px serif`;
+      ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(p.rune,0,0);ctx.restore();}
+    requestAnimationFrame(tick);}
+  resize();init();requestAnimationFrame(tick);
+  window.addEventListener('resize',()=>{resize();init();});
 })();
 
-/* ── MEMBERS DATA ── */
+/* ── TABS ── */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ── MEMBERS ── */
 const MEMBERS = [
-  { name: 'dadmannwalking', channelId: 'UCujCK_S6r09xamdk9Z7yj5Q', uuid: 'b94fbcc5862d4cf4a9fbf29cab6d2b4b', handle: '@dadmannwalking',     ytUrl: 'https://www.youtube.com/@dadmannwalking' },
-  { name: 'SHO310',         channelId: 'UCtaxALTmlbYVTLhMBaOgPzQ', uuid: '8f43758dd3604939894ca5de999f738d', handle: '@sho310yt',             ytUrl: 'https://www.youtube.com/@sho310yt' },
-  { name: 'REDPalette12',   channelId: 'UCfpx_3Ubb5n7dZX5FUPgZRg', uuid: 'e5daed5e36184f0fb1c40a31a2fa22ae', handle: '@REDPalette12',         ytUrl: 'https://www.youtube.com/@REDPalette12' },
-  { name: 'Cocolydocoly',   channelId: 'UCmh8MJxhFxwjL70vKw3pNjQ', uuid: 'a248aa213e274a79889d72a3449a44b9', handle: '@Cocolydocoly',         ytUrl: 'https://www.youtube.com/@Cocolydocoly' },
-  { name: 'HeroicPixels',   channelId: 'UCxvB45E9ndX009eQVitKUMw', uuid: '9c40344415e842fe9d1e76cb7dbebab2', handle: '@heroicpixels',         ytUrl: 'https://www.youtube.com/@heroicpixels' },
-  { name: '__haunted__',    channelId: 'UC1dBBBwhUpY4yixYjF6-JBw', uuid: 'd938bf55d86e47eb941ff6fcd75ded6a', handle: '@haunted_minecrafting', ytUrl: 'https://www.youtube.com/@haunted_minecrafting' },
-  { name: 'ThatOneGuyJames', channelId: 'UC2VNrjDQYGuRwGilqb3x_Xw', uuid: '60961e686275479c82240990fc9e9f35', handle: '@thatoneguyjames1',     ytUrl: 'https://www.youtube.com/@thatoneguyjames1' },
+  { name: 'dadmannwalking', channelId: 'UCujCK_S6r09xamdk9Z7yj5Q', uuid: 'b94fbcc5862d4cf4a9fbf29cab6d2b4b' },
+  { name: 'Bean_theBrave',  channelId: 'UCvnpzxFKPjstdGgAHmBGRIg', uuid: '3043926fc1bc41efac32d852b20cb2ac' },
+  { name: 'SHO310',         channelId: 'UCtaxALTmlbYVTLhMBaOgPzQ', uuid: '8f43758dd3604939894ca5de999f738d' },
+  { name: 'REDPalette12',   channelId: 'UCfpx_3Ubb5n7dZX5FUPgZRg', uuid: 'e5daed5e36184f0fb1c40a31a2fa22ae' },
+  { name: 'JustAnotherRem', channelId: 'UCaL8PZOuqeVZkRqWf8XCZOQ', uuid: '43b6799d5e8f4681bba90f74fc9e097b' },
+  { name: 'Cocolydocoly',   channelId: 'UCmh8MJxhFxwjL70vKw3pNjQ', uuid: 'a248aa213e274a79889d72a3449a44b9' },
+  { name: 'GrimFalcon746',  channelId: 'UCxZ0MLnDLmC2JpP4RLssqtw', uuid: 'f45efb7e8c9c4b0098eab9c406f7ea6e' },
+  { name: 'MarkimusGaming', channelId: 'UCHnDoMGcGmGpgTMBKvMy5Lg', uuid: '5c3dbf4f8e764b72b74166df2d8f2ae4' },
+  { name: 'HeroicPixels',   channelId: 'UCxvB45E9ndX009eQVitKUMw', uuid: '9c40344415e842fe9d1e76cb7dbebab2' },
+  { name: 'MrSevel',        channelId: 'UCNe_fZFdTTzfY_eGizoUHYQ', uuid: '4f0e2362fb154d7894fcbcab226fd292' },
+  { name: '__haunted__',    channelId: 'UC1dBBBwhUpY4yixYjF6-JBw', uuid: 'd938bf55d86e47eb941ff6fcd75ded6a' },
+  { name: 'ThatOneGuyJames',channelId: 'UC2VNrjDQYGuRwGilqb3x_Xw', uuid: '60961e686275479c82240990fc9e9f35' },
 ];
 
-/* ── TIME HELPER ── */
+/* ── HELPERS ── */
 function timeAgo(dateStr) {
   const diff = (Date.now() - new Date(dateStr)) / 1000;
   if (diff < 3600)    return Math.round(diff / 60) + 'm ago';
@@ -494,155 +355,175 @@ function timeAgo(dateStr) {
   return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-/* ── YOUTUBE RSS FETCHING ──────────────────────────────────────────────────
-   Strategy:
-   1. Fetch the creator's YouTube channel page via allorigins CORS proxy.
-   2. Extract the UC... channel ID from the page source.
-   3. Fetch the public YouTube Atom RSS feed for that channel ID.
-      (YouTube RSS only supports channel IDs, not @handles directly.)
-   This requires no API key and works on any static host including GitHub Pages.
-──────────────────────────────────────────────────────────────────────────── */
-// const PROXY = 'https://api.allorigins.win/get?url=';
+function isShort(title, seconds) {
+  // Shorts are ≤ 3 minutes (180s) and often have #shorts in title
+  if (seconds && seconds <= 180) return true;
+  if (title && /#shorts/i.test(title)) return true;
+  return false;
+}
+
+function parseDuration(iso) {
+  // ISO 8601 duration: PT1H2M3S
+  if (!iso) return null;
+  const m = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if (!m) return null;
+  return (parseInt(m[1]||0)*3600) + (parseInt(m[2]||0)*60) + parseInt(m[3]||0);
+}
+
+function formatDuration(seconds) {
+  if (!seconds) return '';
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  if (h > 0) return h + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  return m + ':' + String(s).padStart(2,'0');
+}
+
+/* ── FETCH RSS via CORS proxy ── */
 const PROXY = 'https://corsproxy.io/?';
 
-async function resolveChannelId(handle) {
-  const proxied = PROXY + encodeURIComponent('https://www.youtube.com/' + handle);
-  const res  = await fetch(proxied, { signal: AbortSignal.timeout(12000) });
-  const data = await res.json();
-  const html = data.contents || '';
-  const m    = html.match(/"channelId":"(UC[^"]+)"/)
-            || html.match(/"externalId":"(UC[^"]+)"/)
-            || html.match(/\/channel\/(UC[^"\/\?&]+)/);
-  return m ? m[1] : null;
-}
-
-async function fetchLatestVideo(channelId) {
-  const feedUrl = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + channelId;
+async function fetchVideos(member) {
+  const feedUrl = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + member.channelId;
   const proxied = PROXY + encodeURIComponent(feedUrl);
-  const res  = await fetch(proxied, { signal: AbortSignal.timeout(12000) });
+  const res  = await fetch(proxied, { signal: AbortSignal.timeout(14000) });
   const data = await res.json();
   const xml  = new DOMParser().parseFromString(data.contents, 'text/xml');
-  const entry = xml.querySelector('entry');
-  if (!entry) return null;
-  const videoId   = entry.querySelector('videoId')?.textContent;
-  const title     = entry.querySelector('title')?.textContent;
-  const published = entry.querySelector('published')?.textContent;
-  const thumbUrl  = entry.querySelector('thumbnail')?.getAttribute('url')
-                 || (videoId ? 'https://i.ytimg.com/vi/' + videoId + '/mqdefault.jpg' : null);
-  return { videoId, title, published, thumbUrl };
+  const entries = Array.from(xml.querySelectorAll('entry'));
+
+  const videos = [];
+  for (const entry of entries) {
+    const videoId   = entry.querySelector('videoId')?.textContent?.trim();
+    const title     = entry.querySelector('title')?.textContent?.trim();
+    const published = entry.querySelector('published')?.textContent?.trim();
+    const thumbUrl  = entry.querySelector('thumbnail')?.getAttribute('url')
+                   || (videoId ? 'https://i.ytimg.com/vi/' + videoId + '/mqdefault.jpg' : null);
+
+    // YouTube RSS doesn't give duration — we flag by title only here
+    // (API key path below adds real duration filtering)
+    if (!videoId || !title) continue;
+    if (isShort(title, null)) continue;
+
+    videos.push({ videoId, title, published, thumbUrl, member, durationSec: null });
+  }
+  return videos;
 }
 
-/* ── BUILD CARD (skeleton) ── */
-function buildCard(member, index) {
+/* ── OPTIONAL: YouTube Data API (adds duration for better Shorts filtering) ──
+   1. Get a key at https://console.cloud.google.com
+   2. Restrict it to "YouTube Data API v3" + your GitHub Pages domain
+   3. Paste below and set USE_API_KEY = true
+─────────────────────────────────────────────────────────────────────────── */
+const API_KEY     = '';
+const USE_API_KEY = false;
+
+async function fetchVideosWithAPI(member) {
+  // 1. Get latest 15 video IDs for the channel
+  const searchUrl = 'https://www.googleapis.com/youtube/v3/search?key=' + API_KEY
+    + '&channelId=' + member.channelId
+    + '&part=snippet&order=date&maxResults=15&type=video';
+  const searchRes  = await fetch(searchUrl);
+  const searchData = await searchRes.json();
+  if (!searchData.items?.length) return [];
+
+  // 2. Get durations in one batch call
+  const ids = searchData.items.map(i => i.id.videoId).join(',');
+  const detailUrl  = 'https://www.googleapis.com/youtube/v3/videos?key=' + API_KEY
+    + '&id=' + ids + '&part=contentDetails';
+  const detailRes  = await fetch(detailUrl);
+  const detailData = await detailRes.json();
+  const durMap = {};
+  (detailData.items || []).forEach(v => { durMap[v.id] = parseDuration(v.contentDetails.duration); });
+
+  const videos = [];
+  for (const item of searchData.items) {
+    const videoId   = item.id.videoId;
+    const title     = item.snippet.title;
+    const published = item.snippet.publishedAt;
+    const thumbUrl  = item.snippet.thumbnails.medium?.url || item.snippet.thumbnails.default?.url;
+    const durationSec = durMap[videoId] || null;
+
+    if (isShort(title, durationSec)) continue;
+
+    videos.push({ videoId, title, published, thumbUrl, member, durationSec });
+  }
+  return videos;
+}
+
+/* ── BUILD CARD ── */
+function buildCard(video, index) {
+  const { videoId, title, published, thumbUrl, member, durationSec } = video;
+  const ytUrl    = 'https://www.youtube.com/watch?v=' + videoId;
   const skinUrl  = 'https://visage.surgeplay.com/face/32/' + member.uuid;
   const fallback = 'https://visage.surgeplay.com/face/32/8667ba71b85a4004af54457a9734eed7';
-  const card = document.createElement('div');
-  card.className = 'member-card';
-  card.style.animationDelay = (0.05 * index + 0.5) + 's';
+  const durLabel = durationSec ? formatDuration(durationSec) : '';
+
+  const card = document.createElement('a');
+  card.className = 'video-card';
+  card.href = ytUrl;
+  card.target = '_blank';
+  card.rel = 'noopener noreferrer';
+  card.style.animationDelay = (0.04 * index + 0.1) + 's';
   card.innerHTML =
-    '<div class="thumb-wrap"><div class="thumb-skeleton"></div></div>' +
-    '<div class="card-body">' +
-      '<div class="card-top">' +
-        '<img class="skin-avatar" src="' + skinUrl + '" alt="' + member.name + '" onerror="this.src=\'' + fallback + '\'" loading="lazy" />' +
-        '<div class="creator-info">' +
-          '<div class="creator-name">' + member.name + '</div>' +
-          '<a class="creator-yt-link" href="' + member.ytUrl + '" target="_blank" rel="noopener">' + member.handle + '</a>' +
-        '</div>' +
+    '<div class="thumb">' +
+      '<img src="' + thumbUrl + '" alt="' + title.replace(/"/g,'&quot;') + '" loading="lazy" />' +
+      '<div class="play-btn"><div class="play-circle"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>' +
+      (durLabel ? '<span class="duration">' + durLabel + '</span>' : '') +
+    '</div>' +
+    '<div class="card-meta">' +
+      '<div class="video-title-text">' + title + '</div>' +
+      '<div class="creator-row">' +
+        '<img class="creator-avatar" src="' + skinUrl + '" alt="' + member.name + '" onerror="this.src=\'' + fallback + '\'" loading="lazy" />' +
+        '<span class="creator-name-text">' + member.name + '</span>' +
+        '<span class="time-ago">' + timeAgo(published) + '</span>' +
       '</div>' +
-      '<p class="video-loading">Loading latest video\u2026</p>' +
     '</div>';
   return card;
 }
 
-/* ── POPULATE CARD ── */
-function populateCard(card, member, video) {
-  const thumbWrap = card.querySelector('.thumb-wrap');
-  const loadingEl = card.querySelector('.video-loading');
-  if (!video) {
-    thumbWrap.innerHTML = '<div class="thumb-empty"><span>no video found</span></div>';
-    if (loadingEl) loadingEl.className = 'no-video';
-    if (loadingEl) loadingEl.textContent = 'Could not load latest video.';
-    return;
-  }
-  const ytUrl = 'https://www.youtube.com/watch?v=' + video.videoId;
-  thumbWrap.innerHTML =
-    '<a href="' + ytUrl + '" target="_blank" rel="noopener">' +
-      '<img src="' + video.thumbUrl + '" alt="' + video.title.replace(/"/g, '&quot;') + '" loading="lazy" />' +
-      '<div class="play-overlay"><div class="play-circle"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>' +
-    '</a>';
-  const body = card.querySelector('.card-body');
-  if (loadingEl) loadingEl.remove();
-  body.insertAdjacentHTML('beforeend',
-    '<p class="video-title"><a href="' + ytUrl + '" target="_blank" rel="noopener">' + video.title + '</a></p>' +
-    '<p class="video-meta">' + timeAgo(video.published) + '</p>'
-  );
-}
-
-/* ── YOUTUBE API KEY (optional upgrade) ────────────────────────────────────
-   If you want more reliable fetching, you can use the YouTube Data API v3.
-   1. Go to https://console.cloud.google.com → Create project → Enable "YouTube Data API v3"
-   2. Create an API key → Under "API restrictions" restrict to "YouTube Data API v3"
-   3. Under "Application restrictions" set to "HTTP referrers" and add your GitHub Pages
-      domain, e.g.  https://YOUR-USERNAME.github.io/*
-   4. Paste your key below and set USE_API_KEY = true
-   With the key restricted to your domain it is safe to commit to a public repo.
-────────────────────────────────────────────────────────────────────────── */
-const API_KEY     = 'AIzaSyDxRU7kur0YcnipiY9hC6zM9L9_ufk8_9A';       // paste your key here
-const USE_API_KEY = true;    // set to true once key is added
-
-/* ── INIT ── */
+/* ── MAIN INIT ── */
 async function init() {
-  const grid = document.getElementById('members-grid');
-  const entries = MEMBERS.map(function(member, i) {
-    const card = buildCard(member, i);
-    grid.appendChild(card);
-    return { card, member };
+  const gridLatest   = document.getElementById('grid-latest');
+  const gridCreators = document.getElementById('grid-creators');
+
+  // Show loading state
+  gridLatest.innerHTML   = '<p class="status-msg">Fetching the latest videos…</p>';
+  gridCreators.innerHTML = '<p class="status-msg">Fetching the latest videos…</p>';
+
+  // Fetch all members in parallel
+  const fetchFn = USE_API_KEY && API_KEY ? fetchVideosWithAPI : fetchVideos;
+  const results = await Promise.allSettled(MEMBERS.map(m => fetchFn(m)));
+
+  // Collect all videos across all members
+  const allVideos = [];
+  results.forEach(r => {
+    if (r.status === 'fulfilled') allVideos.push(...r.value);
+    else console.warn('Fetch failed:', r.reason?.message);
   });
 
-  await Promise.allSettled(entries.map(function(entry) {
-    const { card, member } = entry;
+  if (!allVideos.length) {
+    gridLatest.innerHTML   = '<p class="status-msg">Could not load videos — try refreshing.</p>';
+    gridCreators.innerHTML = '<p class="status-msg">Could not load videos — try refreshing.</p>';
+    return;
+  }
 
-    // Prefer YouTube Data API if key is set — more reliable, no CORS proxy needed
-    if (USE_API_KEY && API_KEY) {
-      const apiUrl = 'https://www.googleapis.com/youtube/v3/search?key=' + API_KEY
-        + '&channelId=' + member.channelId
-        + '&part=snippet&order=date&maxResults=1&type=video';
-      return fetch(apiUrl)
-        .then(r => r.json())
-        .then(data => {
-          const item = data.items && data.items[0];
-          if (!item) return null;
-          const vid = item.id.videoId;
-          return {
-            videoId:   vid,
-            title:     item.snippet.title,
-            published: item.snippet.publishedAt,
-            thumbUrl:  item.snippet.thumbnails.medium.url,
-          };
-        })
-        .then(video => populateCard(card, member, video))
-        .catch(err  => { console.warn('[' + member.name + '] API error:', err.message); populateCard(card, member, null); });
+  // Sort all by date descending
+  allVideos.sort((a, b) => new Date(b.published) - new Date(a.published));
+
+  // ── LATEST tab: top 10 most recent (any creator) ──
+  gridLatest.innerHTML = '';
+  allVideos.slice(0, 10).forEach((v, i) => gridLatest.appendChild(buildCard(v, i)));
+
+  // ── CREATORS tab: most recent 1 video per creator ──
+  gridCreators.innerHTML = '';
+  const seen = new Set();
+  const creatorVideos = [];
+  for (const v of allVideos) {
+    if (!seen.has(v.member.name)) {
+      seen.add(v.member.name);
+      creatorVideos.push(v);
     }
-
-    // Fallback: use public RSS feed via CORS proxy (no key needed)
-    const feedUrl = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + member.channelId;
-    const proxied = PROXY + encodeURIComponent(feedUrl);
-    return fetch(proxied, { signal: AbortSignal.timeout(12000) })
-      .then(r => r.json())
-      .then(data => {
-        const xml   = new DOMParser().parseFromString(data.contents, 'text/xml');
-        const entry = xml.querySelector('entry');
-        if (!entry) return null;
-        const videoId   = entry.querySelector('videoId')?.textContent;
-        const title     = entry.querySelector('title')?.textContent;
-        const published = entry.querySelector('published')?.textContent;
-        const thumbUrl  = entry.querySelector('thumbnail')?.getAttribute('url')
-                       || (videoId ? 'https://i.ytimg.com/vi/' + videoId + '/mqdefault.jpg' : null);
-        return { videoId, title, published, thumbUrl };
-      })
-      .then(video => populateCard(card, member, video))
-      .catch(err  => { console.warn('[' + member.name + '] RSS error:', err.message); populateCard(card, member, null); });
-  }));
+  }
+  creatorVideos.forEach((v, i) => gridCreators.appendChild(buildCard(v, i)));
 }
 
 init();
