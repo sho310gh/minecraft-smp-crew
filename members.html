@@ -332,15 +332,10 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 /* ── MEMBERS ── */
 const MEMBERS = [
   { name: 'dadmannwalking', channelId: 'UCujCK_S6r09xamdk9Z7yj5Q', uuid: 'b94fbcc5862d4cf4a9fbf29cab6d2b4b' },
-  { name: 'Bean_theBrave',  channelId: 'UCvnpzxFKPjstdGgAHmBGRIg', uuid: '3043926fc1bc41efac32d852b20cb2ac' },
   { name: 'SHO310',         channelId: 'UCtaxALTmlbYVTLhMBaOgPzQ', uuid: '8f43758dd3604939894ca5de999f738d' },
   { name: 'REDPalette12',   channelId: 'UCfpx_3Ubb5n7dZX5FUPgZRg', uuid: 'e5daed5e36184f0fb1c40a31a2fa22ae' },
-  { name: 'JustAnotherRem', channelId: 'UCaL8PZOuqeVZkRqWf8XCZOQ', uuid: '43b6799d5e8f4681bba90f74fc9e097b' },
   { name: 'Cocolydocoly',   channelId: 'UCmh8MJxhFxwjL70vKw3pNjQ', uuid: 'a248aa213e274a79889d72a3449a44b9' },
-  { name: 'GrimFalcon746',  channelId: 'UCxZ0MLnDLmC2JpP4RLssqtw', uuid: 'f45efb7e8c9c4b0098eab9c406f7ea6e' },
-  { name: 'MarkimusGaming', channelId: 'UCHnDoMGcGmGpgTMBKvMy5Lg', uuid: '5c3dbf4f8e764b72b74166df2d8f2ae4' },
   { name: 'HeroicPixels',   channelId: 'UCxvB45E9ndX009eQVitKUMw', uuid: '9c40344415e842fe9d1e76cb7dbebab2' },
-  { name: 'MrSevel',        channelId: 'UCNe_fZFdTTzfY_eGizoUHYQ', uuid: '4f0e2362fb154d7894fcbcab226fd292' },
   { name: '__haunted__',    channelId: 'UC1dBBBwhUpY4yixYjF6-JBw', uuid: 'd938bf55d86e47eb941ff6fcd75ded6a' },
   { name: 'ThatOneGuyJames',channelId: 'UC2VNrjDQYGuRwGilqb3x_Xw', uuid: '60961e686275479c82240990fc9e9f35' },
 ];
@@ -420,7 +415,7 @@ async function fetchVideosWithAPI(member) {
   // 1. Get latest 15 video IDs for the channel
   const searchUrl = 'https://www.googleapis.com/youtube/v3/search?key=' + API_KEY
     + '&channelId=' + member.channelId
-    + '&part=snippet&order=date&maxResults=15&type=video';
+    + '&part=snippet&order=date&maxResults=30&type=video';
   const searchRes  = await fetch(searchUrl);
   const searchData = await searchRes.json();
   if (!searchData.items?.length) return [];
@@ -511,7 +506,7 @@ async function init() {
 
   // ── LATEST tab: top 10 most recent (any creator) ──
   gridLatest.innerHTML = '';
-  allVideos.slice(0, 10).forEach((v, i) => gridLatest.appendChild(buildCard(v, i)));
+  allVideos.slice(0, 15).forEach((v, i) => gridLatest.appendChild(buildCard(v, i)));
 
   // ── CREATORS tab: most recent 1 video per creator ──
   gridCreators.innerHTML = '';
