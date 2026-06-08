@@ -455,8 +455,14 @@
   function rand(a, b) { return Math.random() * (b - a) + a; }
 
   function resize() {
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
+    const nextW = window.innerWidth;
+    const nextH = window.innerHeight;
+
+    if (W === nextW && Math.abs(H - nextH) < 120) return false;
+
+    W = canvas.width  = nextW;
+    H = canvas.height = nextH;
+    return true;
   }
 
   function makeParticle(staggerY) {
@@ -527,7 +533,9 @@
   resize();
   initParticles();
   requestAnimationFrame(tick);
-  window.addEventListener('resize', () => { resize(); initParticles(); });
+  window.addEventListener('resize', () => {
+    if (resize()) initParticles();
+  });
 })();
 
 /* ── TABS ── */
