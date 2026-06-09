@@ -632,16 +632,18 @@ const MEMBERS = [
 ];
 
 /* ── FETCH via YouTube Data API ── */
-const PROXY       = 'https://corsproxy.io/?';
+// Corsfix returns raw response text (no JSON wrapper), works on github.io
+const PROXY       = 'https://corsfix.com/';
 const API_KEY     = 'AIzaSyDxRU7kur0YcnipiY9hC6zM9L9_ufk8_9A';
-const USE_API_KEY = false;
+const USE_API_KEY = true;
 
 async function fetchVideos(member) {
   const feedUrl = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + member.channelId;
   const proxied = PROXY + encodeURIComponent(feedUrl);
   const res  = await fetch(proxied, { signal: AbortSignal.timeout(14000) });
-  const data = await res.json();
-  const xml  = new DOMParser().parseFromString(data.contents, 'text/xml');
+  if (!res.ok) throw new Error('RSS fetch failed: ' + res.status);
+  const text = await res.text();
+  const xml  = new DOMParser().parseFromString(text, 'text/xml');
   const entries = Array.from(xml.querySelectorAll('entry'));
 
   const videos = [];
@@ -663,7 +665,13 @@ async function fetchVideosWithAPI(member) {
     + '&channelId=' + member.channelId
     + '&part=snippet&order=date&maxResults=30&type=video';
   const searchRes  = await fetch(searchUrl);
+  if (searchRes.status === 429 || searchRes.status === 403) {
+    throw new Error('QUOTA_EXCEEDED');
+  }
   const searchData = await searchRes.json();
+  if (searchData.error?.code === 429 || searchData.error?.code === 403) {
+    throw new Error('QUOTA_EXCEEDED');
+  }
   if (!searchData.items?.length) return [];
 
   const ids = searchData.items.map(i => i.id.videoId).join(',');
@@ -726,14 +734,32 @@ async function init() {
   gridLatest.innerHTML   = '<p class="status-msg">Fetching the latest videos…</p>';
   gridCreators.innerHTML = '<p class="status-msg">Fetching the latest videos…</p>';
 
-  const fetchFn = USE_API_KEY && API_KEY ? fetchVideosWithAPI : fetchVideos;
-  const results = await Promise.allSettled(MEMBERS.map(m => fetchFn(m)));
+  let usedFallback = false;
+
+  async function fetchMember(member) {
+    if (USE_API_KEY && API_KEY) {
+      try {
+        return await fetchVideosWithAPI(member);
+      } catch (e) {
+        if (e.message === 'QUOTA_EXCEEDED') {
+          usedFallback = true;
+          return await fetchVideos(member);
+        }
+        throw e;
+      }
+    }
+    return await fetchVideos(member);
+  }
+
+  const results = await Promise.allSettled(MEMBERS.map(m => fetchMember(m)));
 
   const allVideos = [];
   results.forEach(r => {
     if (r.status === 'fulfilled') allVideos.push(...r.value);
     else console.warn('Fetch failed:', r.reason?.message);
   });
+
+  if (usedFallback) console.info('YouTube API quota exceeded — fell back to RSS feeds.');
 
   if (!allVideos.length) {
     gridLatest.innerHTML   = '<p class="status-msg">Could not load videos — try refreshing.</p>';
