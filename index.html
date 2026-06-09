@@ -417,7 +417,6 @@
 <!-- tabs -->
 <div class="tabs-wrap">
   <button class="tab-btn active" data-tab="members">The Members</button>
-  <button class="tab-btn" data-tab="latest">Latest Videos</button>
   <button class="tab-btn" data-tab="creators">Members Videos</button>
 </div>
 
@@ -425,11 +424,6 @@
   <!-- Members tab -->
   <div class="tab-panel active" id="panel-members">
     <div class="grid" id="grid"></div>
-  </div>
-
-  <!-- Latest Videos tab -->
-  <div class="tab-panel" id="panel-latest">
-    <div class="video-grid" id="grid-latest"></div>
   </div>
 
   <!-- Members Videos tab -->
@@ -589,186 +583,67 @@ members.forEach((m, i) => {
   grid.appendChild(wrap);
 });
 
-/* ── VIDEO HELPERS ── */
-function timeAgo(dateStr) {
-  const diff = (Date.now() - new Date(dateStr)) / 1000;
-  if (diff < 3600)    return Math.round(diff / 60) + 'm ago';
-  if (diff < 86400)   return Math.round(diff / 3600) + 'h ago';
-  if (diff < 604800)  return Math.round(diff / 86400) + 'd ago';
-  if (diff < 2592000) return Math.round(diff / 604800) + 'w ago';
-  return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-}
-
-function isShort(title, seconds) {
-  if (seconds && seconds <= 180) return true;
-  if (title && /#shorts/i.test(title)) return true;
-  return false;
-}
-
-function parseDuration(iso) {
-  if (!iso) return null;
-  const m = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-  if (!m) return null;
-  return (parseInt(m[1]||0)*3600) + (parseInt(m[2]||0)*60) + parseInt(m[3]||0);
-}
-
-function formatDuration(seconds) {
-  if (!seconds) return '';
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  if (h > 0) return h + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
-  return m + ':' + String(s).padStart(2,'0');
-}
-
-/* ── MEMBERS for video fetching (no Cocolydocoly) ── */
-const MEMBERS = [
-  { name: 'dadmannwalking', channelId: 'UCujCK_S6r09xamdk9Z7yj5Q', uuid: 'b94fbcc5862d4cf4a9fbf29cab6d2b4b' },
-  { name: 'SHO310',         channelId: 'UCtaxALTmlbYVTLhMBaOgPzQ', uuid: '8f43758dd3604939894ca5de999f738d' },
-  { name: 'REDPalette12',   channelId: 'UCfpx_3Ubb5n7dZX5FUPgZRg', uuid: 'e5daed5e36184f0fb1c40a31a2fa22ae' },
-  { name: 'HeroicPixels',   channelId: 'UCxvB45E9ndX009eQVitKUMw', uuid: '9c40344415e842fe9d1e76cb7dbebab2' },
-  { name: '__haunted__',    channelId: 'UC1dBBBwhUpY4yixYjF6-JBw', uuid: 'd938bf55d86e47eb941ff6fcd75ded6a' },
-  { name: 'ThatOneGuyJames',channelId: 'UC2VNrjDQYGuRwGilqb3x_Xw', uuid: '60961e686275479c82240990fc9e9f35' },
+/* ── MEMBERS VIDEOS — paste a YouTube URL per member, or leave null ── */
+const MEMBER_VIDEOS = [
+  { name: 'dadmannwalking', uuid: 'b94fbcc5862d4cf4a9fbf29cab6d2b4b', url: 'https://www.youtube.com/watch?v=7wygaPO-LRk' },
+  { name: 'SHO310',         uuid: '8f43758dd3604939894ca5de999f738d', url: 'https://www.youtube.com/watch?v=5JzOmV226jU' },
+  { name: 'REDPalette12',   uuid: 'e5daed5e36184f0fb1c40a31a2fa22ae', url: 'https://www.youtube.com/watch?v=3VW42HArYiE' },
+  { name: 'HeroicPixels',   uuid: '9c40344415e842fe9d1e76cb7dbebab2', url: 'https://www.youtube.com/watch?v=z3K8GQR_yNA' },
+  { name: '__haunted__',    uuid: 'd938bf55d86e47eb941ff6fcd75ded6a', url: 'https://www.youtube.com/watch?v=4D_HlTS3uds' },
+  { name: 'ThatOneGuyJames',uuid: '60961e686275479c82240990fc9e9f35', url: 'https://www.youtube.com/watch?v=fYsMEiQfCXU' },
 ];
-
-/* ── YOUTUBE API KEY ROTATION ── */
-const API_KEYS = [
-  'AIzaSyDxRU7kur0YcnipiY9hC6zM9L9_ufk8_9A',
-  'AIzaSyBGHMBUZ-ipfL7cfEOT5Jl1TUJmjXlK7gs',
-  'AIzaSyAU3h1RJJyilPzRU9CoOarcGl67fTHzark'
-];
-
-let currentKeyIndex = 0;
-
-function getKey() { return API_KEYS[currentKeyIndex]; }
-
-function nextKey() {
-  currentKeyIndex++;
-  if (currentKeyIndex < API_KEYS.length) {
-    console.info('YouTube API quota hit — rotating to key ' + (currentKeyIndex + 1));
-    return true;
-  }
-  return false;
-}
-
-async function apiFetch(url) {
-  while (true) {
-    const res  = await fetch(url.replace('__KEY__', getKey()));
-    const data = await res.json();
-    const code = data.error?.code || (res.ok ? 0 : res.status);
-    if (code === 429 || code === 403) {
-      if (nextKey()) continue;
-      throw new Error('All API keys exhausted');
-    }
-    if (!res.ok) throw new Error('API error ' + res.status);
-    return data;
-  }
-}
-
-async function fetchVideosForMember(member) {
-  const searchData = await apiFetch(
-    'https://www.googleapis.com/youtube/v3/search?key=__KEY__'
-    + '&channelId=' + member.channelId
-    + '&part=snippet&order=date&maxResults=30&type=video'
-  );
-  if (!searchData.items?.length) return [];
-
-  const ids        = searchData.items.map(i => i.id.videoId).join(',');
-  const detailData = await apiFetch(
-    'https://www.googleapis.com/youtube/v3/videos?key=__KEY__'
-    + '&id=' + ids + '&part=contentDetails'
-  );
-
-  const durMap = {};
-  (detailData.items || []).forEach(v => { durMap[v.id] = parseDuration(v.contentDetails.duration); });
-
-  const videos = [];
-  for (const item of searchData.items) {
-    const videoId     = item.id.videoId;
-    const title       = item.snippet.title;
-    const published   = item.snippet.publishedAt;
-    const thumbUrl    = item.snippet.thumbnails.medium?.url || item.snippet.thumbnails.default?.url;
-    const durationSec = durMap[videoId] || null;
-    if (isShort(title, durationSec)) continue;
-    videos.push({ videoId, title, published, thumbUrl, member, durationSec });
-  }
-  return videos;
-}
 
 /* ── BUILD VIDEO CARD ── */
-function buildCard(video, index) {
-  const { videoId, title, published, thumbUrl, member, durationSec } = video;
+function videoIdFromUrl(url) {
+  if (!url) return null;
+  const m = url.match(/[?&]v=([^&]+)/) || url.match(/youtu\.be\/([^?]+)/);
+  return m ? m[1] : null;
+}
+
+function buildCard(entry, index) {
+  const videoId  = videoIdFromUrl(entry.url);
+  if (!videoId) return null;
+
   const ytUrl    = 'https://www.youtube.com/watch?v=' + videoId;
-  const skinUrl  = 'https://visage.surgeplay.com/face/32/' + member.uuid;
+  const thumbUrl = 'https://i.ytimg.com/vi/' + videoId + '/mqdefault.jpg';
+  const skinUrl  = 'https://visage.surgeplay.com/face/32/' + entry.uuid;
   const fallback = 'https://visage.surgeplay.com/face/32/8667ba71b85a4004af54457a9734eed7';
-  const durLabel = durationSec ? formatDuration(durationSec) : '';
 
   const card = document.createElement('a');
   card.className = 'video-card';
   card.href = ytUrl;
   card.target = '_blank';
   card.rel = 'noopener noreferrer';
-  card.style.animationDelay = (0.04 * index + 0.1) + 's';
+  card.style.animationDelay = (0.07 * index + 0.1) + 's';
   card.innerHTML =
     '<div class="thumb">' +
-      '<img src="' + thumbUrl + '" alt="' + title.replace(/"/g,'&quot;') + '" loading="lazy" />' +
+      '<img src="' + thumbUrl + '" alt="' + entry.name + '" loading="lazy" />' +
       '<div class="play-btn"><div class="play-circle"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>' +
-      (durLabel ? '<span class="duration">' + durLabel + '</span>' : '') +
     '</div>' +
     '<div class="card-meta">' +
-      '<div class="video-title-text">' + title + '</div>' +
       '<div class="creator-row">' +
-        '<img class="creator-avatar" src="' + skinUrl + '" alt="' + member.name + '" onerror="this.src=\'' + fallback + '\'" loading="lazy" />' +
-        '<span class="creator-name-text">' + member.name + '</span>' +
-        '<span class="time-ago">' + timeAgo(published) + '</span>' +
+        '<img class="creator-avatar" src="' + skinUrl + '" alt="' + entry.name + '" onerror="this.src=\'' + fallback + '\'" loading="lazy" />' +
+        '<span class="creator-name-text">' + entry.name + '</span>' +
       '</div>' +
     '</div>';
   return card;
 }
 
-/* ── MAIN INIT ── */
-async function init() {
-  const gridLatest   = document.getElementById('grid-latest');
-  const gridCreators = document.getElementById('grid-creators');
+/* ── RENDER MEMBERS VIDEOS ── */
+(function () {
+  const grid = document.getElementById('grid-creators');
+  const withVideos = MEMBER_VIDEOS.filter(e => e.url);
 
-  gridLatest.innerHTML   = '<p class="status-msg">Fetching the latest videos…</p>';
-  gridCreators.innerHTML = '<p class="status-msg">Fetching the latest videos…</p>';
-
-  const results = await Promise.allSettled(MEMBERS.map(m => fetchVideosForMember(m)));
-
-  const allVideos = [];
-  results.forEach(r => {
-    if (r.status === 'fulfilled') allVideos.push(...r.value);
-    else console.warn('Fetch failed:', r.reason?.message);
-  });
-
-  if (!allVideos.length) {
-    gridLatest.innerHTML   = '<p class="status-msg">Could not load videos — try refreshing.</p>';
-    gridCreators.innerHTML = '<p class="status-msg">Could not load videos — try refreshing.</p>';
+  if (!withVideos.length) {
+    grid.innerHTML = '<p class="status-msg">No videos added yet.</p>';
     return;
   }
 
-  // Sort all by publish date descending (latest first)
-  allVideos.sort((a, b) => new Date(b.published) - new Date(a.published));
-
-  // Latest Videos tab: top 15 most recent across all members
-  gridLatest.innerHTML = '';
-  allVideos.slice(0, 15).forEach((v, i) => gridLatest.appendChild(buildCard(v, i)));
-
-  // Members Videos tab: most recent 1 video per member
-  gridCreators.innerHTML = '';
-  const seen = new Set();
-  const creatorVideos = [];
-  for (const v of allVideos) {
-    if (!seen.has(v.member.name)) {
-      seen.add(v.member.name);
-      creatorVideos.push(v);
-    }
-  }
-  creatorVideos.forEach((v, i) => gridCreators.appendChild(buildCard(v, i)));
-}
-
-init();
+  withVideos.forEach((entry, i) => {
+    const card = buildCard(entry, i);
+    if (card) grid.appendChild(card);
+  });
+})();
 
 /* ── SPARKLE TRAIL ── */
 (function () {
