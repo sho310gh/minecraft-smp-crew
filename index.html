@@ -55,6 +55,8 @@
       z-index: 9999;
     }
 
+    @media (hover: none) { #trail-canvas { display: none; } }
+
     .bottom-glow {
       position: fixed;
       bottom: 0; left: 0; right: 0; height: 280px;
@@ -98,6 +100,13 @@
       font-weight: 600; letter-spacing: 0.12em;
       color: var(--text); line-height: 1;
       opacity: 0; animation: fade-up 0.8s 0.25s ease forwards;
+    }
+
+    .header-logo {
+      max-width: min(680px, 90vw);
+      height: auto;
+      display: block;
+      margin: 0 auto;
     }
 
     .tagline {
@@ -162,8 +171,8 @@
       justify-content: center;
       grid-template-columns: repeat(3, minmax(0, 200px));
     }
-    @media (max-width: 680px)  { .grid { grid-template-columns: repeat(2, minmax(0, 180px)); } }
-    @media (max-width: 440px)  { .grid { grid-template-columns: repeat(1, minmax(0, 180px)); } }
+    @media (max-width: 680px)  { .grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 440px)  { .grid { grid-template-columns: 1fr; max-width: 320px; margin: 0 auto; } }
 
     /* ── flip card ── */
     .flip-wrap {
@@ -400,7 +409,7 @@
 
 <header>
   <p class="eyebrow">Survival Multiplayer</p>
-  <h1>Wyrdcraft</h1>
+  <h1><img src="images/wyrdcraft_text_logo.png" alt="Wyrdcraft" class="header-logo" /></h1>
   <p class="description">"Your fate is drawn. What you do with it is up to you."</p>
   <div class="divider"></div>
 </header>
@@ -756,6 +765,9 @@ init();
 
 /* ── SPARKLE TRAIL ── */
 (function () {
+  // Disable entirely on touch/mobile devices
+  if (window.matchMedia('(hover: none)').matches) return;
+
   const canvas = document.getElementById('trail-canvas');
   const ctx    = canvas.getContext('2d');
 
@@ -768,6 +780,7 @@ init();
   const sparks = [];
   let mx = -999, my = -999;
   let lastSpawn = 0;
+  let mouseOnPage = false;
 
   function resize() {
     W = canvas.width  = window.innerWidth;
@@ -780,6 +793,18 @@ init();
   window.addEventListener('mousemove', e => {
     mx = e.clientX;
     my = e.clientY;
+    mouseOnPage = true;
+  });
+
+  // Stop spawning when mouse leaves the browser window
+  document.addEventListener('mouseleave', () => {
+    mouseOnPage = false;
+    mx = -999;
+    my = -999;
+  });
+
+  document.addEventListener('mouseenter', () => {
+    mouseOnPage = true;
   });
 
   function spawnSpark(x, y) {
@@ -815,8 +840,8 @@ init();
     const dt = ts - last;
     last = ts;
 
-    // Throttle spawning to ~every 25ms and only when mouse is on page
-    if (ts - lastSpawn > 25 && mx > 0) {
+    // Only spawn when mouse is inside the window
+    if (mouseOnPage && ts - lastSpawn > 25) {
       const count = Math.floor(Math.random() * 2) + 1;
       for (let i = 0; i < count; i++) {
         const jx = mx + (Math.random() - 0.5) * 10;
