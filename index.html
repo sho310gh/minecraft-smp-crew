@@ -631,63 +631,63 @@ const MEMBERS = [
   { name: 'ThatOneGuyJames',channelId: 'UC2VNrjDQYGuRwGilqb3x_Xw', uuid: '60961e686275479c82240990fc9e9f35' },
 ];
 
-/* ── FETCH via YouTube Data API ── */
-// Corsfix returns raw response text (no JSON wrapper), works on github.io
-const PROXY       = 'https://proxy.corsfix.com/?';
-const API_KEY     = 'AIzaSyDxRU7kur0YcnipiY9hC6zM9L9_ufk8_9A';
-const USE_API_KEY = true;
+/* ── YOUTUBE API KEY ROTATION ── */
+const API_KEYS = [
+  'AIzaSyDxRU7kur0YcnipiY9hC6zM9L9_ufk8_9A',
+  'AIzaSyBGHMBUZ-ipfL7cfEOT5Jl1TUJmjXlK7gs',
+  'AIzaSyAU3h1RJJyilPzRU9CoOarcGl67fTHzark'
+];
 
-async function fetchVideos(member) {
-  const feedUrl = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + member.channelId;
-  const proxied = PROXY + feedUrl;
-  const res  = await fetch(proxied, { signal: AbortSignal.timeout(14000) });
-  if (!res.ok) throw new Error('RSS fetch failed: ' + res.status);
-  const text = await res.text();
-  const xml  = new DOMParser().parseFromString(text, 'text/xml');
-  const entries = Array.from(xml.querySelectorAll('entry'));
+let currentKeyIndex = 0;
 
-  const videos = [];
-  for (const entry of entries) {
-    const videoId   = entry.querySelector('videoId')?.textContent?.trim();
-    const title     = entry.querySelector('title')?.textContent?.trim();
-    const published = entry.querySelector('published')?.textContent?.trim();
-    const thumbUrl  = entry.querySelector('thumbnail')?.getAttribute('url')
-                   || (videoId ? 'https://i.ytimg.com/vi/' + videoId + '/mqdefault.jpg' : null);
-    if (!videoId || !title) continue;
-    if (isShort(title, null)) continue;
-    videos.push({ videoId, title, published, thumbUrl, member, durationSec: null });
+function getKey() { return API_KEYS[currentKeyIndex]; }
+
+function nextKey() {
+  currentKeyIndex++;
+  if (currentKeyIndex < API_KEYS.length) {
+    console.info('YouTube API quota hit — rotating to key ' + (currentKeyIndex + 1));
+    return true;
   }
-  return videos;
+  return false;
 }
 
-async function fetchVideosWithAPI(member) {
-  const searchUrl = 'https://www.googleapis.com/youtube/v3/search?key=' + API_KEY
+async function apiFetch(url) {
+  while (true) {
+    const res  = await fetch(url.replace('__KEY__', getKey()));
+    const data = await res.json();
+    const code = data.error?.code || (res.ok ? 0 : res.status);
+    if (code === 429 || code === 403) {
+      if (nextKey()) continue;
+      throw new Error('All API keys exhausted');
+    }
+    if (!res.ok) throw new Error('API error ' + res.status);
+    return data;
+  }
+}
+
+async function fetchVideosForMember(member) {
+  const searchData = await apiFetch(
+    'https://www.googleapis.com/youtube/v3/search?key=__KEY__'
     + '&channelId=' + member.channelId
-    + '&part=snippet&order=date&maxResults=30&type=video';
-  const searchRes  = await fetch(searchUrl);
-  if (searchRes.status === 429 || searchRes.status === 403) {
-    throw new Error('QUOTA_EXCEEDED');
-  }
-  const searchData = await searchRes.json();
-  if (searchData.error?.code === 429 || searchData.error?.code === 403) {
-    throw new Error('QUOTA_EXCEEDED');
-  }
+    + '&part=snippet&order=date&maxResults=30&type=video'
+  );
   if (!searchData.items?.length) return [];
 
-  const ids = searchData.items.map(i => i.id.videoId).join(',');
-  const detailUrl  = 'https://www.googleapis.com/youtube/v3/videos?key=' + API_KEY
-    + '&id=' + ids + '&part=contentDetails';
-  const detailRes  = await fetch(detailUrl);
-  const detailData = await detailRes.json();
+  const ids        = searchData.items.map(i => i.id.videoId).join(',');
+  const detailData = await apiFetch(
+    'https://www.googleapis.com/youtube/v3/videos?key=__KEY__'
+    + '&id=' + ids + '&part=contentDetails'
+  );
+
   const durMap = {};
   (detailData.items || []).forEach(v => { durMap[v.id] = parseDuration(v.contentDetails.duration); });
 
   const videos = [];
   for (const item of searchData.items) {
-    const videoId   = item.id.videoId;
-    const title     = item.snippet.title;
-    const published = item.snippet.publishedAt;
-    const thumbUrl  = item.snippet.thumbnails.medium?.url || item.snippet.thumbnails.default?.url;
+    const videoId     = item.id.videoId;
+    const title       = item.snippet.title;
+    const published   = item.snippet.publishedAt;
+    const thumbUrl    = item.snippet.thumbnails.medium?.url || item.snippet.thumbnails.default?.url;
     const durationSec = durMap[videoId] || null;
     if (isShort(title, durationSec)) continue;
     videos.push({ videoId, title, published, thumbUrl, member, durationSec });
@@ -734,32 +734,13 @@ async function init() {
   gridLatest.innerHTML   = '<p class="status-msg">Fetching the latest videos…</p>';
   gridCreators.innerHTML = '<p class="status-msg">Fetching the latest videos…</p>';
 
-  let usedFallback = false;
-
-  async function fetchMember(member) {
-    if (USE_API_KEY && API_KEY) {
-      try {
-        return await fetchVideosWithAPI(member);
-      } catch (e) {
-        if (e.message === 'QUOTA_EXCEEDED') {
-          usedFallback = true;
-          return await fetchVideos(member);
-        }
-        throw e;
-      }
-    }
-    return await fetchVideos(member);
-  }
-
-  const results = await Promise.allSettled(MEMBERS.map(m => fetchMember(m)));
+  const results = await Promise.allSettled(MEMBERS.map(m => fetchVideosForMember(m)));
 
   const allVideos = [];
   results.forEach(r => {
     if (r.status === 'fulfilled') allVideos.push(...r.value);
     else console.warn('Fetch failed:', r.reason?.message);
   });
-
-  if (usedFallback) console.info('YouTube API quota exceeded — fell back to RSS feeds.');
 
   if (!allVideos.length) {
     gridLatest.innerHTML   = '<p class="status-msg">Could not load videos — try refreshing.</p>';
