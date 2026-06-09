@@ -633,13 +633,13 @@ const MEMBERS = [
 
 /* ── FETCH via YouTube Data API ── */
 // Corsfix returns raw response text (no JSON wrapper), works on github.io
-const PROXY       = 'https://corsfix.com/';
+const PROXY       = 'https://proxy.corsfix.com/?';
 const API_KEY     = 'AIzaSyDxRU7kur0YcnipiY9hC6zM9L9_ufk8_9A';
 const USE_API_KEY = true;
 
 async function fetchVideos(member) {
   const feedUrl = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + member.channelId;
-  const proxied = PROXY + encodeURIComponent(feedUrl);
+  const proxied = PROXY + feedUrl;
   const res  = await fetch(proxied, { signal: AbortSignal.timeout(14000) });
   if (!res.ok) throw new Error('RSS fetch failed: ' + res.status);
   const text = await res.text();
