@@ -1,0 +1,114 @@
+{
+  "members": [
+    {
+      "uuid": "b94fbcc5862d4cf4a9fbf29cab6d2b4b",
+      "name": "dadmannwalking",
+      "role": "admin",
+      "socials": {
+        "youtube": "https://www.youtube.com/@dadmannwalking",
+        "twitch": "https://www.twitch.tv/dadmannwalking"
+      },
+      "video": "https://www.youtube.com/watch?v=7wygaPO-LRk"
+    },
+    {
+      "uuid": "8f43758dd3604939894ca5de999f738d",
+      "name": "SHO310",
+      "role": "admin",
+      "socials": {
+        "youtube": "https://www.youtube.com/@sho310yt",
+        "twitch": "https://www.twitch.tv/sho310tv"
+      },
+      "video": "https://www.youtube.com/watch?v=5JzOmV226jU"
+    },
+    {
+      "uuid": "e5daed5e36184f0fb1c40a31a2fa22ae",
+      "name": "REDPalette12",
+      "role": "admin",
+      "socials": {
+        "youtube": "https://www.youtube.com/@REDPalette12",
+        "twitch": "https://www.twitch.tv/redpalette12"
+      },
+      "video": "https://www.youtube.com/watch?v=3VW42HArYiE"
+    },
+    {
+      "uuid": "9c40344415e842fe9d1e76cb7dbebab2",
+      "name": "HeroicPixels",
+      "role": "admin",
+      "socials": {
+        "youtube": "https://www.youtube.com/@heroicpixels",
+        "twitch": "https://www.twitch.tv/heroicpixels"
+      },
+      "video": "https://www.youtube.com/watch?v=z3K8GQR_yNA"
+    },
+    {
+      "uuid": "d938bf55d86e47eb941ff6fcd75ded6a",
+      "name": "__haunted__",
+      "role": "admin",
+      "socials": {
+        "youtube": "https://www.youtube.com/@haunted_minecrafting",
+        "twitch": null
+      },
+      "video": "https://www.youtube.com/watch?v=4D_HlTS3uds"
+    },
+    {
+      "uuid": "60961e686275479c82240990fc9e9f35",
+      "name": "ThatOneGuyJames",
+      "role": "admin",
+      "socials": {
+        "youtube": "https://www.youtube.com/@thatoneguyjames1",
+        "twitch": null
+      },
+      "video": "https://www.youtube.com/watch?v=fYsMEiQfCXU"
+    },
+    {
+      "uuid": "ce5f608a-6a01-4921-860f-01c2050dc2c9",
+      "name": "Twisted227",
+      "role": "member",
+      "socials": {
+        "youtube": "https://www.youtube.com/@twisted227",
+        "twitch": "https://www.twitch.tv/twisted227"
+      },
+      "video": "https://www.youtube.com/watch?v=095-BeRt0EA"
+    },
+    {
+      "uuid": "6c29b252-4b73-4135-b36f-dad2cd69c63c",
+      "name": "iiTzCrypTiiC",
+      "role": "member",
+      "socials": {
+        "youtube": "https://www.youtube.com/@iiTzCrypTiiC",
+        "twitch": "https://www.twitch.tv/iitzcryptiic"
+      },
+      "video": "https://www.youtube.com/watch?v=DPze9gTnXlM"
+    },
+    {
+      "uuid": "751f0b41-02be-4996-9699-3113f3749a1c",
+      "name": "Freebiy",
+      "role": "member",
+      "socials": {
+        "youtube": "https://www.youtube.com/@FreebiyGames",
+        "twitch": "https://www.twitch.tv/freebiy"
+      },
+      "video": "https://www.youtube.com/watch?v=0LVlAFhOnfo"
+    },
+    {
+      "uuid": "7bc287b3-bf6c-4372-abf1-7dd5f75bc992",
+      "name": "Jamesisnotaduck",
+      "role": "member",
+      "socials": {
+        "youtube": "https://www.youtube.com/@jamesisnotaduck",
+        "twitch": "https://www.twitch.tv/jamesisnotaduck"
+      },
+      "video": "https://www.youtube.com/watch?v=DfOWuTfJ-2I"
+    },
+    {
+      "uuid": "500f0461-e380-4007-be15-3216561ed4ab",
+      "name": "dactel",
+      "role": "member",
+      "socials": {
+        "youtube": "https://youtube.com/@dactel",
+        "twitch": "https://twitch.tv/dactelcraft"
+      },
+      "video": "https://www.youtube.com/watch?v=37fKFEYfOpY"
+    }
+  ]
+}

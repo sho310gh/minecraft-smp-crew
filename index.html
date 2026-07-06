@@ -545,23 +545,18 @@ const svgYT = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColo
 const svgTW = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>`;
 const iconMap = { yt: svgYT, tw: svgTW };
 
-const members = [
-  { uuid: 'b94fbcc5862d4cf4a9fbf29cab6d2b4b', name: 'dadmannwalking', socials: [ YT('https://www.youtube.com/@dadmannwalking'), TW('https://www.twitch.tv/dadmannwalking') ] },
-  { uuid: '8f43758dd3604939894ca5de999f738d', name: 'SHO310',           socials: [ YT('https://www.youtube.com/@sho310yt'), TW('https://www.twitch.tv/sho310tv') ] },
-  { uuid: 'e5daed5e36184f0fb1c40a31a2fa22ae', name: 'REDPalette12',     socials: [ YT('https://www.youtube.com/@REDPalette12'), TW('https://www.twitch.tv/redpalette12') ] },
-  { uuid: '9c40344415e842fe9d1e76cb7dbebab2', name: 'HeroicPixels',     socials: [ YT('https://www.youtube.com/@heroicpixels'), TW('https://www.twitch.tv/heroicpixels') ] },
-  { uuid: 'd938bf55d86e47eb941ff6fcd75ded6a', name: '__haunted__',      socials: [ YT('https://www.youtube.com/@haunted_minecrafting') ] },
-  { uuid: '60961e686275479c82240990fc9e9f35', name: 'ThatOneGuyJames',  socials: [ YT('https://www.youtube.com/@thatoneguyjames1') ] },
-];
-
 const grid = document.getElementById('grid');
 
-members.forEach((m, i) => {
+function renderMemberCard(m, i) {
   const skinUrl = `https://visage.surgeplay.com/full/128/${m.uuid}`;
   const fallback = `https://visage.surgeplay.com/full/128/8667ba71b85a4004af54457a9734eed7`;
 
-  const linksHtml = m.socials.length
-    ? m.socials.map(s => `<a class="social-link" href="${s.url}" target="_blank" rel="noopener noreferrer">${iconMap[s.icon]} ${s.label}</a>`).join('')
+  const socialEntries = [];
+  if (m.socials && m.socials.youtube) socialEntries.push(YT(m.socials.youtube));
+  if (m.socials && m.socials.twitch)  socialEntries.push(TW(m.socials.twitch));
+
+  const linksHtml = socialEntries.length
+    ? socialEntries.map(s => `<a class="social-link" href="${s.url}" target="_blank" rel="noopener noreferrer">${iconMap[s.icon]} ${s.label}</a>`).join('')
     : `<span class="no-socials">no links yet</span>`;
 
   const wrap = document.createElement('div');
@@ -580,18 +575,8 @@ members.forEach((m, i) => {
       </div>
     </div>
   `;
-  grid.appendChild(wrap);
-});
-
-/* ── MEMBERS VIDEOS — paste a YouTube URL per member, or leave null ── */
-const MEMBER_VIDEOS = [
-  { name: 'dadmannwalking', uuid: 'b94fbcc5862d4cf4a9fbf29cab6d2b4b', url: 'https://www.youtube.com/watch?v=7wygaPO-LRk' },
-  { name: 'SHO310',         uuid: '8f43758dd3604939894ca5de999f738d', url: 'https://www.youtube.com/watch?v=5JzOmV226jU' },
-  { name: 'REDPalette12',   uuid: 'e5daed5e36184f0fb1c40a31a2fa22ae', url: 'https://www.youtube.com/watch?v=3VW42HArYiE' },
-  { name: 'HeroicPixels',   uuid: '9c40344415e842fe9d1e76cb7dbebab2', url: 'https://www.youtube.com/watch?v=z3K8GQR_yNA' },
-  { name: '__haunted__',    uuid: 'd938bf55d86e47eb941ff6fcd75ded6a', url: 'https://www.youtube.com/watch?v=4D_HlTS3uds' },
-  { name: 'ThatOneGuyJames',uuid: '60961e686275479c82240990fc9e9f35', url: 'https://www.youtube.com/watch?v=fYsMEiQfCXU' },
-];
+  return wrap;
+}
 
 /* ── BUILD VIDEO CARD ── */
 function videoIdFromUrl(url) {
@@ -601,7 +586,7 @@ function videoIdFromUrl(url) {
 }
 
 function buildCard(entry, index) {
-  const videoId  = videoIdFromUrl(entry.url);
+  const videoId  = videoIdFromUrl(entry.video);
   if (!videoId) return null;
 
   const ytUrl    = 'https://www.youtube.com/watch?v=' + videoId;
@@ -630,9 +615,9 @@ function buildCard(entry, index) {
 }
 
 /* ── RENDER MEMBERS VIDEOS ── */
-(function () {
+function renderVideos(members) {
   const grid = document.getElementById('grid-creators');
-  const withVideos = MEMBER_VIDEOS.filter(e => e.url);
+  const withVideos = members.filter(m => m.video);
 
   if (!withVideos.length) {
     grid.innerHTML = '<p class="status-msg">No videos added yet.</p>';
@@ -643,7 +628,29 @@ function buildCard(entry, index) {
     const card = buildCard(entry, i);
     if (card) grid.appendChild(card);
   });
-})();
+}
+
+/* ── LOAD MEMBERS FROM JSON AND RENDER EVERYTHING ── */
+fetch('members.json')
+  .then(res => {
+    if (!res.ok) throw new Error('Failed to load members.json: ' + res.status);
+    return res.json();
+  })
+  .then(data => {
+    const members = (data.members || []).filter(m => m.name && m.uuid);
+
+    members.forEach((m, i) => grid.appendChild(renderMemberCard(m, i)));
+    if (!members.length) {
+      grid.innerHTML = '<p class="status-msg">No members added yet.</p>';
+    }
+
+    renderVideos(members);
+  })
+  .catch(err => {
+    console.error(err);
+    grid.innerHTML = '<p class="status-msg">Could not load members.json</p>';
+    document.getElementById('grid-creators').innerHTML = '<p class="status-msg">Could not load members.json</p>';
+  });
 
 /* ── SPARKLE TRAIL ── */
 (function () {
