@@ -109,6 +109,46 @@
         "twitch": "https://twitch.tv/dactelcraft"
       },
       "video": "https://www.youtube.com/watch?v=37fKFEYfOpY"
+    },
+    {
+      "uuid": "2be4738f-31b1-4d77-b031-480e47794ab3",
+      "name": "Noodls",
+      "role": "member",
+      "socials": {
+        "youtube": "https://www.youtube.com/@noodlwize737",
+        "twitch": "https://www.twitch.tv/noodlwize"
+      },
+      "video": "https://www.youtube.com/watch?v=bzhcTVMsjwA"
+    },
+    {
+      "uuid": "c076f684-8eaa-4d6d-979c-ad9d77f87f4a",
+      "name": "LewisGamer327",
+      "role": "member",
+      "socials": {
+        "youtube": "https://www.youtube.com/@LewisGamer327",
+        "twitch": "https://www.twitch.tv/lewisgamer327"
+      },
+      "video": "https://www.youtube.com/watch?v=r3S2cImdSvM"
+    },
+    {
+      "uuid": "d7563390-b0f4-4aae-a923-4bb6918073fb",
+      "name": "Ryukusu",
+      "role": "member",
+      "socials": {
+        "youtube": "https://www.youtube.com/@ryukusuu",
+        "twitch": "https://www.twitch.tv/ryukusu"
+      },
+      "video": "https://www.youtube.com/watch?v=UxYPmGelqLk"
+    },
+    {
+      "uuid": "3cb5b37d-8136-4208-b8d6-b516f345fd85",
+      "name": "ItsJustAJ",
+      "role": "member",
+      "socials": {
+        "youtube": "https://www.youtube.com/@itsjustaj0_0",
+        "twitch": "https://www.twitch.tv/ItsJustAJ0_0"
+      },
+      "video": "https://www.youtube.com/watch?v=FXLZYi5FQO4"
     }
   ]
 }
